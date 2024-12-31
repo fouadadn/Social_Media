@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "../styles/index.css";
+import Header from "@/components/header";
 
 export const metadata: Metadata = {
   title: "Social Media App",
@@ -19,6 +20,7 @@ export default function RootLayout({
         <link href="https://api.fontshare.com/v2/css?f[]=general-sans@500&display=swap" rel="stylesheet"></link>
       </head>
       <body>
+        <Header />
         {children}
       </body>
     </html>
