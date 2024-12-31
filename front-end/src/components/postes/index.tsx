@@ -43,7 +43,7 @@ export default function Postes() {
                 <ul className="w-full py-5 flex gap-8 px-5">
                     <li className="flex items-center gap-[5px] cursor-pointer text-red-500">
                         <i className='bx bxs-heart text-[18px]'></i>
-                        <h1>J'adore</h1>
+                        <h1>Jadore</h1>
                     </li>
                     <li className="flex items-center gap-[5px] cursor-pointer text-gray-500">
                         <i className='bx bxs-comment text-[18px]'></i>
