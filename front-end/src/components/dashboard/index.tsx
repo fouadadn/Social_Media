@@ -5,7 +5,9 @@ export default function Dashboard({ userId }: { userId: number }) {
         <div className="w-full h-full flex flex-wrap lg:flex-nowrap gap-5">
             <div className="w-full lg:w-[45%] h-full flex flex-col gap-5">
                 <div className="w-full h-full bg-white rounded-md">
-                    <div className="w-full py-[80px] Background-Size" style={{ backgroundImage: "url(https://4kwallpapers.com/images/wallpapers/dark-background-abstract-background-network-3d-background-6016x3384-8324.png)", borderRadius: '8px 8px 0px 0px' }}></div>
+                    <div className="w-full px-4 pt-[20px] pb-[120px] flex justify-end Background-Size" style={{ backgroundImage: "url(https://4kwallpapers.com/images/wallpapers/dark-background-abstract-background-network-3d-background-6016x3384-8324.png)", borderRadius: '8px 8px 0px 0px' }}>
+                        <i className='bx bx-paint text-white text-[18px] p-2 bg-blue-500 cursor-pointer rounded-full'></i>
+                    </div>
                     <div className="w-full h-[20vh] flex px-5 lg:px-10">
                         <div className="w-1/2 flex flex-col items-start gap-3">
                             <div className="p-1 rounded-full mt-[-4rem] lg:mt-[-5rem] bg-white">

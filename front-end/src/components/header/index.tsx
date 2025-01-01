@@ -49,11 +49,7 @@ export default function Header() {
                     </Link>
                     <Link href="/profile" className={`flex flex-col items-center gap-[1px] cursor-pointer ${ChangeUrl === 'Profile' ? 'border-b-2 border-black' : ''}`}>
                         <i className='bx bxs-user-account text-[20px]'></i>
-                        <h1>Profile</h1>
-                    </Link>
-                    <Link href="/" className={`flex flex-col items-center gap-[1px] cursor-pointer ${ChangeUrl === 'Reseau' ? 'border-b-2 border-black' : ''}`}>
-                        <i className='bx bx-universal-access text-[20px]'></i>
-                        <h1>Reseau</h1>
+                        <h1>Profiles</h1>
                     </Link>
                     <Link href="/" className={`flex flex-col items-center gap-[1px] cursor-pointer ${ChangeUrl === 'Messagerie' ? 'border-b-2 border-black' : ''}`}>
                         <i className='bx bxs-chat text-[20px]'></i>
