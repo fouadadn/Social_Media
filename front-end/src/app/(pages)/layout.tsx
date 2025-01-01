@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "../../styles/index.css";
 import Header from "@/components/header";
+import ReduxProvider from "@/store/reduxprovider";
 
 export const metadata: Metadata = {
   title: "Social Media App",
@@ -21,7 +22,9 @@ export default function RootLayout({
       </head>
       <body>
         <Header />
-        {children}
+        <ReduxProvider>
+          {children}
+        </ReduxProvider>
       </body>
     </html>
   );

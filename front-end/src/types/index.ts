@@ -5,3 +5,7 @@ export interface AccountTypes {
     Password?: string,
     PasswordConfirmation?: string,
 }
+export interface AddPosteTypes {
+    Description: string,
+    Picture: null
+}
