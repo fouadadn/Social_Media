@@ -1,8 +1,8 @@
 import Link from "next/link";
 
-export default function Profiles() {
+export default function Clients() {
     return <>
-        <div className="w-full lg:w-[28%] h-full py-5 lg:flex flex-col gap-6 bg-white rounded-md hidden">
+        <div className="w-full lg:w-[36%] h-full py-5 flex flex-col gap-6 bg-white rounded-md">
             <div className="w-full flex justify-between items-center px-5">
                 <div className="flex items-center gap-4 cursor-pointer">
                     <div className="p-6 rounded-full Background-Size" style={{ backgroundImage: "url(https://ahmed-hrr.vercel.app/Assets/ahmed-1.jpg)" }}></div>

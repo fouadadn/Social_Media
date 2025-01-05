@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Profile() {
     return <>
         <div className="w-full lg:w-[25%] h-full flex flex-col">
@@ -7,7 +9,7 @@ export default function Profile() {
                     <div className="p-1 rounded-full mt-[-4rem] lg:mt-[-3rem] bg-white">
                         <div className="w-full h-full p-16 lg:p-12 rounded-full Background-Size" style={{ backgroundImage: "url(https://ahmed-hrr.vercel.app/Assets/ahmed-1.jpg)" }}></div>
                     </div>
-                    <h1 className="text-xl lg:text-base font-[500]">Ahmed Hariri</h1>
+                    <Link href="/profile/0" className="text-xl lg:text-base font-[500]">Ahmed Hariri</Link>
                 </div>
             </div>
             <div className="w-full h-full flex flex-col gap-2 text-[15px] lg:text-[13px] border-t border-b border-gray-200 px-4 py-[12px] bg-white">
