@@ -9,8 +9,7 @@ class PostsController extends Controller
 {
     public function index()
     {
-        $posts = Posts::all();
-
+        $posts = Posts::with('likes' , 'comments')->get();
         if(!$posts){
             return response()->json(['message' => 'no posts available']);
         }
@@ -24,12 +23,12 @@ class PostsController extends Controller
             'body' => 'required',
         ]);
 
-
         $post =  Posts::create([
             'title' => $formfields['title'],
             'body' => $formfields['body'],
             'user_id' => $request->user()->id
         ]);
+
 
         return response()->json(['message' => 'post create succusfuly', 'data' => $post], 200);
     }
@@ -66,7 +65,6 @@ class PostsController extends Controller
     public function show($id)
     {
         $post = Posts::find($id);
-
         if (!$post) {
             return response()->json(['message' => 'no post found'], 404);
         }
@@ -77,7 +75,6 @@ class PostsController extends Controller
     {
         $user_id =  $request->user()->id;
         $post_found =  Posts::where('user_id', $user_id)->where('id', $id)->first();
-
         $post = Posts::find($id);
         if (!$post) {
             return response()->json(['message' => 'no post found'], 404);
@@ -88,10 +85,19 @@ class PostsController extends Controller
         }
 
         $deleted = $post->delete();
-
         if (!$deleted) {
             return response()->json(['message' => 'something went wrong']);
         }
         return response()->json(['message' => 'post deleted succussfuly']);
     }
+
+
+    public function user_posts(Request $request){
+        $userId = $request->user()->id;
+        $posts = Posts::where('user_id' , $userId)->with('likes')->get();
+
+        return $posts;
+    }
+
+
 }
