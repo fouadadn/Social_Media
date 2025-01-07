@@ -13,7 +13,7 @@ class AuthController extends Controller implements HasMiddleware
     public static function middleware()
     {
         return [
-            new Middleware('auth:sunctum', except: ['register', 'login'])
+            new Middleware('auth:sanctum', except: ['register', 'login'])
         ];
     }
 
