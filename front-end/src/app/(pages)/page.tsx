@@ -2,6 +2,7 @@ import Postes from "@/components/postes"
 import Profile from "@/components/profile"
 import Profiles from "@/components/profiles"
 
+
 export default function Home() {
     return <>
         <section className="w-full h-full flex justify-center">

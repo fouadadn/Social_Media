@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 export default function Dashboard({ userId }: { userId: number }) {
+    console.log(userId)
     return <>
         <div className="w-full h-full flex flex-wrap lg:flex-nowrap gap-5">
             <div className="w-full lg:w-[45%] h-full flex flex-col gap-5">
