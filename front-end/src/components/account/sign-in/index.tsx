@@ -1,30 +1,47 @@
 'use client'
 
+import { GetAccountApi } from '@/api/account';
 import { setEmail, setPassword } from '@/slices/signinSlice';
 import { AccountTypes } from '@/types';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 export default function AccountSignIn() {
     const [SignIn, setSignIn] = useState<AccountTypes>({
-        Email: '',
-        Password: '',
+        email: '',
+        password: '',
     });
     const dispatch = useDispatch();
-    // const values = useSelector((state: any) => state.signin);
+    const Navigate = useRouter();
 
     const HandelChanges = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target
         setSignIn((prevstate: AccountTypes) => ({ ...prevstate, [name]: value }))
     }
 
-    const CreateAccount = (e: React.ChangeEvent<HTMLFormElement>) => {
+    const CreateAccount = async (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
-        dispatch(setEmail(SignIn.Email || ''));
-        dispatch(setPassword(SignIn.Password || ''));
+        dispatch(setEmail(SignIn.email || ''));
+        dispatch(setPassword(SignIn.password || ''));
+        try {
+            const response = await GetAccountApi(SignIn);
+            if (response.token) {
+                localStorage.setItem("Token", response.token);
+                alert(response.message || '');
+                Navigate.push('/');
+                SignIn.email = "";
+                SignIn.password = "";
+            }
+            else if (response.message === "email or password is incorrect") {
+                alert(response.message);
+            }
+        } catch (error) {
+            return console.log(error);
+        }
     }
     return <>
         <section className="w-full h-screen flex justify-center gap-4 p-2">
@@ -38,10 +55,10 @@ export default function AccountSignIn() {
                     </div>
                     <div className="w-full flex flex-col items-center gap-1">
                         <Box className="w-full mt-2">
-                            <TextField fullWidth label="Email" type="email" className="w-full" name='Email' onChange={HandelChanges} />
+                            <TextField fullWidth label="Email" type="email" className="w-full" name='email' onChange={HandelChanges} />
                         </Box>
                         <Box className="w-full mt-2">
-                            <TextField fullWidth label="Password" type="password" className="w-full" name='Password' onChange={HandelChanges} />
+                            <TextField fullWidth label="Password" type="password" className="w-full" name='password' onChange={HandelChanges} />
                         </Box>
                         <div className="w-full flex flex-col items-center gap-3 mt-5">
                             <button type='submit' className="w-full py-3 text-lg bg-blue-500 text-white rounded-md duration-500 hover:bg-green-500">

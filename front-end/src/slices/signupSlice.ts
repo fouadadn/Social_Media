@@ -2,34 +2,30 @@ import { AccountTypes } from "@/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState: AccountTypes = {
-    FirstName: '',
-    LastName: '',
-    Email: '',
-    Password: '',
-    PasswordConfirmation: ''
+    name: '',
+    email: '',
+    password: '',
+    password_confirmation: ''
 }
 
 export const SignUpSlice = createSlice({
     name: 'signup',
     initialState,
     reducers: {
-        setFirstName(state: AccountTypes, action: PayloadAction<string>) {
-            state.FirstName = action.payload
-        },
-        setLastName(state: AccountTypes, action: PayloadAction<string>) {
-            state.LastName = action.payload
+        setName(state: AccountTypes, action: PayloadAction<string>) {
+            state.name = action.payload
         },
         setEmail(state: AccountTypes, action: PayloadAction<string>) {
-            state.Email = action.payload
+            state.email = action.payload
         },
         setPassword(state: AccountTypes, action: PayloadAction<string>) {
-            state.Password = action.payload
+            state.password = action.payload
         },
         setPasswordConfirmation(state: AccountTypes, action: PayloadAction<string>) {
-            state.PasswordConfirmation = action.payload
+            state.password_confirmation = action.payload
         }
     }
 });
 
-export const { setFirstName, setLastName, setEmail, setPassword, setPasswordConfirmation } = SignUpSlice.actions;
+export const { setName, setEmail, setPassword, setPasswordConfirmation } = SignUpSlice.actions;
 export default SignUpSlice.reducer

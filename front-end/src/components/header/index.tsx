@@ -3,12 +3,13 @@
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function Header() {
     const [ChangeUrl, setChangeUrl] = useState<string>('');
     const Pathname = usePathname();
+    const Navigate = useRouter()
 
     useEffect(() => {
         switch (Pathname) {
@@ -34,6 +35,11 @@ export default function Header() {
         }
     }, [Pathname]);
 
+    const Logout = () => {
+        localStorage.removeItem("Token")
+        Navigate.push("/sign-up");
+    };
+
     return <>
         <header className="w-full py-[13px] flex justify-center mb-3 bg-white shadow-sm">
             <div className="w-full lg:max-w-[1200px] h-full flex justify-between items-center lg:px-4 xl:px-0">
@@ -57,7 +63,8 @@ export default function Header() {
                     </Link>
                 </ul>
                 <div className='w-[30%] lg:flex justify-end items-center hidden'>
-                    <button className='px-4 py-2 text-sm bg-blue-600 text-white rounded-md'>
+                    <button className='px-4 py-2 text-sm bg-blue-600 text-white rounded-md'
+                        onClick={Logout}>
                         Log out
                     </button>
                 </div>

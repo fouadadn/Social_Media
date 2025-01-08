@@ -1,36 +1,55 @@
 'use client'
 
-import { setEmail, setFirstName, setLastName, setPassword, setPasswordConfirmation } from '@/slices/signupSlice';
+import { AddNewAccountApi } from '@/api/account';
+import { setEmail, setName, setPassword, setPasswordConfirmation } from '@/slices/signupSlice';
 import { AccountTypes } from '@/types';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 export default function AccountSignUp() {
     const [SignUp, setSignUp] = useState<AccountTypes>({
-        FirstName: '',
-        LastName: '',
-        Email: '',
-        Password: '',
-        PasswordConfirmation: ''
+        name: '',
+        email: '',
+        password: '',
+        password_confirmation: ''
     });
     const dispatch = useDispatch();
-    // const values = useSelector((state: any) => state.signup);
+    // const signup = useSelector((state: any) => state.signup);
+    const Navigate = useRouter();
 
     const HandelChanges = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target
         setSignUp((prevstate: AccountTypes) => ({ ...prevstate, [name]: value }))
     }
 
-    const CreateAccount = (e: React.ChangeEvent<HTMLFormElement>) => {
+    const CreateAccount = async (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
-        dispatch(setFirstName(SignUp.FirstName || ''));
-        dispatch(setLastName(SignUp.LastName || ''));
-        dispatch(setEmail(SignUp.Email || ''));
-        dispatch(setPassword(SignUp.Password || ''));
-        dispatch(setPasswordConfirmation(SignUp.PasswordConfirmation || ''));
+        dispatch(setName(SignUp.name || ''));
+        dispatch(setEmail(SignUp.email || ''));
+        dispatch(setPassword(SignUp.password || ''));
+        dispatch(setPasswordConfirmation(SignUp.password_confirmation || ''));
+        try {
+            const response = await AddNewAccountApi(SignUp);
+            if (response.token) {
+                localStorage.setItem("Token", response.token);
+                alert(response.message || '');
+                Navigate.push('/');
+                SignUp.name = "";
+                SignUp.email = "";
+                SignUp.password = "";
+                SignUp.password_confirmation = "";
+            }
+            else if (response.message === "The email has already been taken.") {
+                alert(response.message);
+            }
+            console.log(response)
+        } catch (error) {
+            return console.log(error);
+        }
     }
     return <>
         <section className="w-full h-screen flex justify-center gap-4 p-2">
@@ -43,22 +62,17 @@ export default function AccountSignUp() {
                         <p className="text-gray">Sign Up to Contact Many Person.</p>
                     </div>
                     <div className="w-full flex flex-col items-center gap-1">
-                        <div className='w-full flex gap-3'>
-                            <Box className="w-1/2 mt-2">
-                                <TextField fullWidth label="First Name" className="w-full" name='FirstName' onChange={HandelChanges} />
-                            </Box>
-                            <Box className="w-1/2 mt-2">
-                                <TextField fullWidth label="Last Name" className="w-full" name='LastName' onChange={HandelChanges} />
-                            </Box>
-                        </div>
                         <Box className="w-full mt-2">
-                            <TextField fullWidth label="Email" type="email" className="w-full" name='Email' onChange={HandelChanges} />
+                            <TextField fullWidth label="Name" className="w-full" name='name' onChange={HandelChanges} />
                         </Box>
                         <Box className="w-full mt-2">
-                            <TextField fullWidth label="Password" type="password" className="w-full" name='Password' onChange={HandelChanges} />
+                            <TextField fullWidth label="Email" type="email" className="w-full" name='email' onChange={HandelChanges} />
                         </Box>
                         <Box className="w-full mt-2">
-                            <TextField fullWidth label="Password Cofirmation" type="password" className="w-full" name='PasswordConfirmation' onChange={HandelChanges} />
+                            <TextField fullWidth label="Password" type="password" className="w-full" name='password' onChange={HandelChanges} />
+                        </Box>
+                        <Box className="w-full mt-2">
+                            <TextField fullWidth label="Password Cofirmation" type="password" className="w-full" name='password_confirmation' onChange={HandelChanges} />
                         </Box>
                         <div className="w-full flex flex-col items-center gap-3 mt-5">
                             <button type='submit' className="w-full py-3 text-lg bg-blue-500 text-white rounded-md duration-500 hover:bg-green-500">

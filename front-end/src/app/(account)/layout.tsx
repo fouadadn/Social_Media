@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "../../styles/index.css";
 import ReduxProvider from "@/store/reduxprovider";
+import ShareProvider from "@/context";
 
 export const metadata: Metadata = {
   title: "Social Media App",
@@ -20,9 +21,11 @@ export default function RootLayout({
         <link href="https://api.fontshare.com/v2/css?f[]=general-sans@500&display=swap" rel="stylesheet"></link>
       </head>
       <body>
-        <ReduxProvider>
-          {children}
-        </ReduxProvider>
+        <ShareProvider>
+          <ReduxProvider>
+            {children}
+          </ReduxProvider>
+        </ShareProvider>
       </body>
     </html>
   );
