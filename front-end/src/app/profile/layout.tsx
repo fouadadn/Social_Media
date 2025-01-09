@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "../../styles/index.css";
 import Header from "@/components/header";
+import ShareProvider from "@/context";
 
 export const metadata: Metadata = {
     title: "Profile",
@@ -21,7 +22,9 @@ export default function RootLayout({
             </head>
             <body>
                 <Header />
-                {children}
+                <ShareProvider>
+                    {children}
+                </ShareProvider>
             </body>
         </html>
     );

@@ -1,7 +1,8 @@
 'use client'
 
-import { GetUserInfoApi } from "@/api/user";
+import { fetchUserInfo } from "@/api/user";
 import { AccountTypes } from "@/types";
+import { useRouter } from "next/navigation";
 import { createContext, ReactNode, useEffect, useState } from "react";
 
 interface ShareInfoContextType {
@@ -9,15 +10,21 @@ interface ShareInfoContextType {
     setuserInfo: (userInfo: AccountTypes) => void
 }
 
-export const shareInfo = createContext<ShareInfoContextType | undefined>(undefined)
+const initialState: ShareInfoContextType = {
+    userInfo: {},
+    setuserInfo: () => { }
+}
+
+export const shareInfo = createContext<ShareInfoContextType>(initialState)
 
 export default function ShareProvider({ children }: { children: ReactNode }) {
     const [userInfo, setuserInfo] = useState<AccountTypes>({});
+    const route = useRouter();
 
     const GetUserInfo = async () => {
         try {
-            const response = await GetUserInfoApi(localStorage.getItem("Token") || "")
-            setuserInfo(response || {})
+            const response = await fetchUserInfo(localStorage.getItem("Token") || "")
+            setuserInfo(response || {});
         } catch (error) {
             return console.log("Problem read user information:", error);
         }
@@ -26,10 +33,13 @@ export default function ShareProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         if (localStorage.getItem("Token")) {
             GetUserInfo();
-        } else {
+        }
+        else {
+            route.push("/sign-up");
             return console.log("You dont have Token!")
         }
-    }, [])
+    }, [route]);
+
 
     return <>
         <shareInfo.Provider value={{ userInfo, setuserInfo }}>

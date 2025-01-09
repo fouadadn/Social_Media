@@ -1,5 +1,5 @@
-// Get User Information
-export const GetUserInfoApi = async (userToken: string) => {
+// Fetch User Information
+export const fetchUserInfo = async (userToken: string) => {
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user`, {
             method: "GET",
@@ -11,6 +11,6 @@ export const GetUserInfoApi = async (userToken: string) => {
         const data = await response.json();
         return data || {};
     } catch (error) {
-        return console.log("Problem Get User Information:", error);
+        return console.log("Error fetching user information:", error);
     }
 }

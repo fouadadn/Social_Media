@@ -63,7 +63,7 @@ export default function Header() {
                     </Link>
                 </ul>
                 <div className='w-[30%] lg:flex justify-end items-center hidden'>
-                    <button className='px-4 py-2 text-sm bg-blue-600 text-white rounded-md'
+                    <button className='px-4 py-2 text-sm bg-blue-600 hover:bg-transparent border border-blue-500 hover:text-blue-500 duration-500 text-white rounded-md'
                         onClick={Logout}>
                         Log out
                     </button>
