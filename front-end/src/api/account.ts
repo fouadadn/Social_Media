@@ -1,7 +1,7 @@
 import { AccountTypes } from "@/types";
 
-// Sign-Up
-export const AddNewAccountApi = async (newAccount: AccountTypes) => {
+// Register New Account
+export const registerNewAccount = async (newAccount: AccountTypes) => {
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/register`, {
             method: "POST",
@@ -14,12 +14,12 @@ export const AddNewAccountApi = async (newAccount: AccountTypes) => {
 
         return await response.json();
     } catch (error) {
-        console.log(error)
+        return console.log("Error Register New Account:", error);
     }
 }
 
-// Sign-In
-export const GetAccountApi = async (userInformation: AccountTypes) => {
+// User Login
+export const loginUser = async (userInformation: AccountTypes) => {
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
             method: "POST",
@@ -31,6 +31,6 @@ export const GetAccountApi = async (userInformation: AccountTypes) => {
         });
         return await response.json();
     } catch (error) {
-        console.log(error)
+        return console.log("Error Login:", error);
     }
 }

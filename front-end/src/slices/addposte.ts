@@ -2,22 +2,22 @@ import { AddPosteTypes } from "@/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState: AddPosteTypes = {
-    Description: '',
-    Picture: null
+    title: '',
+    body: ''
 }
 
 export const AddPostesSlice = createSlice({
     name: 'addPostes',
     initialState,
     reducers: {
-        setDescription(state, action: PayloadAction<string>) {
-            state.Description = action.payload
+        setTitle(state, action: PayloadAction<string>) {
+            state.title = action.payload
         },
-        setPicture(state, action: PayloadAction<null>) {
-            state.Picture = action.payload
+        setBody(state, action: PayloadAction<string>) {
+            state.body = action.payload
         }
     }
 });
 
-export const { setDescription, setPicture } = AddPostesSlice.actions;
+export const { setTitle, setBody } = AddPostesSlice.actions;
 export default AddPostesSlice.reducer;
