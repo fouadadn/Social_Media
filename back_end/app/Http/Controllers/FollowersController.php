@@ -25,7 +25,8 @@ class FollowersController extends Controller implements HasMiddleware
             return response()->json(['message' => 'user not found'] , 404);
         }
         if($followed->first()){
-            return response()->json(['message' => 'you already followed this person']);
+            $followed->delete();
+            return response()->json(['message' => 'you unfollowed this person']);
         }
 
         $follower =  Followers::create([
@@ -35,7 +36,6 @@ class FollowersController extends Controller implements HasMiddleware
         ]);
 
         $lifollowiti = User::find($user_id);
-
         return response()->json(['message' => "now you follow $lifollowiti->name ", 'data' => $follower], 200);
     }
 

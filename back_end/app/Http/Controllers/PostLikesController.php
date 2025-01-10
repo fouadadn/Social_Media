@@ -19,9 +19,13 @@ class PostLikesController extends Controller implements HasMiddleware
     public function like(Request $request , $postId){
 
         $post = Posts::with('likes')->find($postId);
+        $liked = PostLikes::where('user_id' , $request->user()->id)->where('posts_id' , $postId);
+
         foreach($post->likes as $like){
              if($like->user_id === $request->user()->id){
-                return response()->json(["message" => "you already liked this post"]);
+
+                $liked->delete();
+                return response()->json(["message" => "post unliked"]);
              }
         }
         
@@ -34,14 +38,15 @@ class PostLikesController extends Controller implements HasMiddleware
         return response()->json(['message' => 'post liked']);
     }
 
-    public function unlike(Request $request , $postId) {
-        $like = PostLikes::where('user_id' , $request->user()->id)->where('posts_id' , $postId);
-        
-        if(!$like){
-            return response()->json(['message' => 'you dont liked this to dislike it']);
-        }
-        $like->delete();
-        return response()->json(['message' => 'post disliked']);
+    public function get_liked_posts(Request $request){
+        $userId = $request->user()->id;
+        $likedPosts = PostLikes::where('user_id' , $userId);
 
+        if(count($likedPosts->get()) === 0){
+            return response()->json(["message" => "no posts liked"]);
+        }
+
+        return response()->json(["data" => $likedPosts] , 200);
+        
     }
 }

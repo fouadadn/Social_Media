@@ -26,6 +26,7 @@ class PostsController extends Controller
         $post =  Posts::create([
             'title' => $formfields['title'],
             'body' => $formfields['body'],
+            'username' => $request->user()->name,
             'user_id' => $request->user()->id
         ]);
 
