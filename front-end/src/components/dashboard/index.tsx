@@ -9,6 +9,7 @@ import { LuCircleAlert } from "react-icons/lu";
 import { FiEdit } from "react-icons/fi";
 import { MdRemoveCircleOutline } from "react-icons/md"
 import { CiMenuKebab } from "react-icons/ci";
+import { AddLikeApi } from "@/api/like";
 
 export default function Dashboard() {
     const [loading, setLoading] = useState<boolean>(true);
@@ -32,7 +33,7 @@ export default function Dashboard() {
             const response = await fetchUserPostsApi();
             setPosts(response || []);
         } catch (error) {
-            console.log("Problem Get UserPost:", error);
+            console.error("Problem Get UserPost:", error);
         } finally {
             setLoading(false);
         }
@@ -45,7 +46,7 @@ export default function Dashboard() {
             alert(response?.message);
             setAddPost({ title: '', body: '' });
         } catch (error) {
-            console.log("Problem Create Post:", error);
+            console.error("Problem Create Post:", error);
         } finally {
             setCardsPost(false);
         }
@@ -65,7 +66,7 @@ export default function Dashboard() {
             await getUserPosts();
             alert(response?.message);
         } catch (error) {
-            console.log("Problem Remove Post:", error);
+            console.error("Problem Remove Post:", error);
         }
     }
 
@@ -83,9 +84,31 @@ export default function Dashboard() {
             const response = await updatePostApi(editePost ?? 0, addPost);
             alert(response?.mesaage);
             await getUserPosts();
-            setCardsPost(false)
+            setCardsPost(false);
         } catch (error) {
-            console.log("Problem Update UserPost:", error);
+            console.error("Problem Update UserPost:", error);
+        }
+    }
+
+    const likePost = async (id: number) => {
+        try {
+            const response = await AddLikeApi(id);
+            alert(response?.message ?? '');
+            await getUserPosts();
+        } catch (error) {
+            console.error("Error add like to post:", error);
+        }
+    }
+
+    const verficationLike = (likes: AddPosteTypes[]) => {
+        if (!likes || !userInfo) {
+            return
+        }
+        const finduser = likes?.find((item: AddPosteTypes) => item.user_id === userInfo?.id);
+        if (finduser) {
+            return 'text-red-500';
+        } else {
+            return '';
         }
     }
 
@@ -121,7 +144,7 @@ export default function Dashboard() {
                             </div>
                             <div>
                                 <h1>Folowing</h1>
-                                <h1>50</h1>
+                                <h1>{userInfo?.following?.length ?? 0}</h1>
                             </div>
                         </div>
                     </div>
@@ -130,7 +153,7 @@ export default function Dashboard() {
                     <div className="w-full flex justify-between items-center px-5">
                         <div className="flex items-center gap-4 cursor-pointer">
                             <div className="p-6 rounded-full Background-Size" style={{ backgroundImage: "url(https://ahmed-hrr.vercel.app/Assets/ahmed-1.jpg)" }}></div>
-                            <Link href="/profile/0">Ahmed Hariri</Link>
+                            <Link href={`/profile/${userInfo?.id}`}>Ahmed Hariri</Link>
                         </div>
                         <button className="px-4 py-[6px] hover:bg-blue-600 hover:text-white duration-500 text-sm text-blue-500 border border-blue-500 rounded-full">
                             Follow
@@ -139,7 +162,7 @@ export default function Dashboard() {
                     <div className="w-full flex justify-between items-center px-5">
                         <div className="flex items-center gap-4 cursor-pointer">
                             <div className="p-6 rounded-full Background-Size" style={{ backgroundImage: "url(https://ahmed-hrr.vercel.app/Assets/ahmed-1.jpg)" }}></div>
-                            <Link href="/profile/0">Ahmed Hariri</Link>
+                            <Link href={`/profile/${userInfo?.id}`}>Ahmed Hariri</Link>
                         </div>
                         <button className="px-4 py-[6px] hover:bg-blue-600 hover:text-white duration-500 text-sm text-blue-500 border border-blue-500 rounded-full">
                             Follow
@@ -148,7 +171,7 @@ export default function Dashboard() {
                     <div className="w-full flex justify-between items-center px-5">
                         <div className="flex items-center gap-4 cursor-pointer">
                             <div className="p-6 rounded-full Background-Size" style={{ backgroundImage: "url(https://ahmed-hrr.vercel.app/Assets/ahmed-1.jpg)" }}></div>
-                            <Link href="/profile/0">Ahmed Hariri</Link>
+                            <Link href={`/profile/${userInfo?.id}`}>Ahmed Hariri</Link>
                         </div>
                         <button className="px-4 py-[6px] hover:bg-blue-600 hover:text-white duration-500 text-sm text-blue-500 border border-blue-500 rounded-full">
                             Follow
@@ -204,15 +227,15 @@ export default function Dashboard() {
                                     <div className="w-full h-[50vh] lg:max-h-[600px] bg-center Background-Size" style={{ backgroundImage: "url(https://media.licdn.com/dms/image/v2/D4E22AQFkEbrAfiv3fw/feedshare-shrink_2048_1536/B4EZP9yHfeHkAo-/0/1735129602184?e=1738800000&v=beta&t=DDAsooUXL9K8CTDcQw4u1squ5CFtZ8riZTOAi7XFG-o)" }}></div>
                                     {/* <!-- Actions --> */}
                                     <ul className="w-full py-5 flex gap-8 px-5">
-                                        <li className="flex items-center gap-[5px] cursor-pointer text-red-500">
+                                        <li className={`flex items-center gap-[5px] cursor-pointer ${verficationLike(item?.likes ?? [])}`} onClick={() => likePost(item?.id ?? 0)}>
                                             <i className='bx bxs-heart text-[18px]'></i>
                                             <h1>Jadore</h1>
                                         </li>
-                                        <li className="flex items-center gap-[5px] cursor-pointer text-gray-500">
+                                        <li className="flex items-center gap-[5px] cursor-pointer">
                                             <i className='bx bxs-comment text-[18px]'></i>
                                             <h1>Comment</h1>
                                         </li>
-                                        <li className="flex items-center gap-[5px] cursor-pointer text-green-500">
+                                        <li className="flex items-center gap-[5px] cursor-pointer">
                                             <i className='bx bxs-bookmarks text-[18px]'></i>
                                             <h1>Enregistrer</h1>
                                         </li>

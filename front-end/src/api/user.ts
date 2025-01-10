@@ -11,6 +11,6 @@ export const fetchUserInfo = async (userToken: string) => {
         const data = await response.json();
         return data || {};
     } catch (error) {
-        return console.log("Error fetching user information:", error);
+        console.error("Error fetching user information:", error);
     }
 }

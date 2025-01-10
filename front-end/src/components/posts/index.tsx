@@ -2,7 +2,7 @@
 
 import { createPostApi, fetchPostsApi, updatePostApi, deletePostApi } from "@/api/post";
 import { setBody, setTitle } from "@/slices/addposte";
-import { AddPosteTypes } from "@/types";
+import { AccountTypes, AddPosteTypes } from "@/types";
 import { useContext, useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux";
 import { LuCircleAlert } from "react-icons/lu";
@@ -10,8 +10,11 @@ import { CiMenuKebab } from "react-icons/ci";
 import { shareInfo } from "@/context";
 import { FiEdit } from "react-icons/fi";
 import { MdRemoveCircleOutline } from "react-icons/md"
+import { AddLikeApi } from "@/api/like";
+import { newFollowing } from "@/api/following";
+import { verfication } from "@/utils";
 
-export default function Postes() {
+export default function Posts() {
     const [cardsPost, setCardsPost] = useState<boolean>(false);
     const [addPost, setAddPost] = useState<AddPosteTypes>({ title: '', body: '' });
     const [posts, setPosts] = useState<AddPosteTypes[]>([]);
@@ -26,7 +29,7 @@ export default function Postes() {
     const ChangeState = (): void => setCardsPost((prevstate: boolean) => !prevstate);
     const ShowActions = (index: number): void => setActions((prevstate: number | null) => prevstate === index ? null : index);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
         const { name, value } = e.target;
         setAddPost((prevstate: AddPosteTypes) => ({ ...prevstate, [name]: value }));
     }
@@ -36,7 +39,7 @@ export default function Postes() {
             const response = await fetchPostsApi();
             setPosts(response || []);
         } catch (error) {
-            console.log("Problem Get Posts:", error);
+            console.error("Problem Get Posts:", error);
         } finally {
             setLoading(false);
         }
@@ -58,9 +61,11 @@ export default function Postes() {
         try {
             const response = await createPostApi(reduxPoste || {});
             await getPosts();
-            alert(response?.message);
+            if (response?.message === 'post create succusfuly') {
+                alert(response.message)
+            }
         } catch (error) {
-            console.log("Problem Create Post:", error);
+            console.error("Problem Create Post:", error);
         }
     }
 
@@ -70,7 +75,7 @@ export default function Postes() {
             await getPosts();
             alert(response?.message);
         } catch (error) {
-            console.log("Problem Remove Post:", error);
+            console.error("Problem Remove Post:", error);
         }
     }
 
@@ -88,9 +93,28 @@ export default function Postes() {
             const response = await updatePostApi(editePost ?? 0, reduxPoste);
             alert(response?.mesaage);
             await getPosts();
-            setCardsPost(false)
+            setCardsPost(false);
         } catch (error) {
-            console.log("Problem Update Post:", error);
+            console.error("Problem Update Post:", error);
+        }
+    }
+
+    const likePost = async (id: number) => {
+        try {
+            const response = await AddLikeApi(id);
+            console.log(response?.message ?? '');
+            await getPosts();
+        } catch (error) {
+            console.error("Error add like to post:", error);
+        }
+    }
+
+    const following = async (id: number) => {
+        try {
+            const response = await newFollowing(id);
+            console.log(response?.message ?? '');
+        } catch (error) {
+            console.error("Error following:", error);
         }
     }
 
@@ -136,16 +160,16 @@ export default function Postes() {
                                             <h1>Ahmed Hariri</h1>
                                         </div>
                                         <div className="w-1/2 flex justify-end items-center gap-1 text-blue-500 cursor-pointer">
-                                            <div className={`${item?.user_id !== userInfo?.id ? 'flex' : 'hidden'}`}>
-                                                <i className='bx bx-plus text-lg'></i>
-                                                <h1>Follow</h1>
-                                            </div>
-                                            <div className="flex items-center gap-3">
-                                                <div className={`w-full h-full flex ${item?.id === actions ? '' : 'hidden'} justify-end items-center gap-3`}>
-                                                    <FiEdit className="text-green-500" onClick={() => EditePost(item?.id ?? 0)} />
-                                                    <MdRemoveCircleOutline className="text-red-500 text-lg" onClick={() => deletePost(item?.id ?? 0)} />
+                                            <button className={`${item?.user_id !== userInfo?.id ? 'flex' : 'hidden'} ${verfication([], item?.user_id ?? 0, userInfo)} px-[18px] py-[6px] border border-blue-500 rounded-full`}
+                                                onClick={() => following(item?.user_id ?? 0)}>
+                                                {verfication([], item?.user_id ?? 0, userInfo) === 'bg-blue-500 text-white' ? 'Unfolow' : 'folow'}
+                                            </button>
+                                            <div className={`flex items-center gap-2 ${item?.user_id === userInfo?.id ? 'flex' : 'hidden'}`}>
+                                                <div className={`flex ${item?.id === actions ? '' : 'hidden'} justify-end items-center gap-3`}>
+                                                    <FiEdit className="text-green-500 text-[20px]" onClick={() => EditePost(item?.id ?? 0)} />
+                                                    <MdRemoveCircleOutline className="text-red-500 text-[21px]" onClick={() => deletePost(item?.id ?? 0)} />
                                                 </div>
-                                                <CiMenuKebab className={`text-2xl ${item?.user_id === userInfo?.id ? 'flex' : 'hidden'}`} onClick={() => ShowActions(item.id ?? 0)} />
+                                                <CiMenuKebab className="text-2xl" onClick={() => ShowActions(item.id ?? 0)} />
                                             </div>
                                         </div>
                                     </div>
@@ -162,15 +186,16 @@ export default function Postes() {
                                 <div className="w-full h-[50vh] lg:max-h-[500px] bg-center Background-Size" style={{ backgroundImage: "url(https://media.licdn.com/dms/image/v2/D4E22AQFkEbrAfiv3fw/feedshare-shrink_2048_1536/B4EZP9yHfeHkAo-/0/1735129602184?e=1738800000&v=beta&t=DDAsooUXL9K8CTDcQw4u1squ5CFtZ8riZTOAi7XFG-o)" }}></div>
                                 {/* <!-- Actions --> */}
                                 <ul className="w-full py-5 flex gap-8 px-5">
-                                    <li className="flex items-center gap-[5px] cursor-pointer text-red-500">
+                                    <li className={`flex items-center gap-[5px] cursor-pointer ${verfication(item?.likes ?? [], item?.user_id ?? 0, userInfo)}`}
+                                        onClick={() => likePost(item?.id ?? 0)}>
                                         <i className='bx bxs-heart text-[18px]'></i>
                                         <h1>Jadore</h1>
                                     </li>
-                                    <li className="flex items-center gap-[5px] cursor-pointer text-gray-500">
+                                    <li className="flex items-center gap-[5px] cursor-pointer">
                                         <i className='bx bxs-comment text-[18px]'></i>
                                         <h1>Comment</h1>
                                     </li>
-                                    <li className="flex items-center gap-[5px] cursor-pointer text-green-500">
+                                    <li className="flex items-center gap-[5px] cursor-pointer">
                                         <i className='bx bxs-bookmarks text-[18px]'></i>
                                         <h1>Enregistrer</h1>
                                     </li>

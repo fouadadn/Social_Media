@@ -2,8 +2,8 @@ import { AccountTypes } from "@/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState: AccountTypes = {
-    Email: '',
-    Password: '',
+    email: '',
+    password: '',
 }
 
 export const SignInSlice = createSlice({
@@ -11,10 +11,10 @@ export const SignInSlice = createSlice({
     initialState,
     reducers: {
         setEmail(state: AccountTypes, action: PayloadAction<string>) {
-            state.Email = action.payload
+            state.email = action.payload
         },
         setPassword(state: AccountTypes, action: PayloadAction<string>) {
-            state.Password = action.payload
+            state.password = action.payload
         }
     }
 });

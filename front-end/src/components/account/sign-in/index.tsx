@@ -29,15 +29,15 @@ export default function AccountSignIn() {
             if (response.token) {
                 localStorage.setItem("Token", response.token);
                 alert(response.message || '');
-                navigate.push('/');
                 setAccount({ name: '', email: '' });
+                navigate.push('/');
             }
             else if (response.message === "email or password is incorrect") {
                 alert(response.message);
                 return
             }
         } catch (error) {
-            return console.log("Error Login:", error);
+            console.error("Error Login:", error);
         }
     }
     return <>

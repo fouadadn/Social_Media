@@ -5,11 +5,13 @@ export interface AccountTypes {
     password?: string,
     password_confirmation?: string,
     posts?: AddPosteTypes[],
-    followers? : AccountTypes[]
+    followers?: AccountTypes[],
+    following?: AccountTypes[]
 }
 export interface AddPosteTypes {
     id?: number,
     user_id?: number,
-    title: string,
-    body: string,
+    title?: string,
+    body?: string,
+    likes? : AddPosteTypes[]
 }

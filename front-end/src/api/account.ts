@@ -14,7 +14,7 @@ export const registerNewAccount = async (newAccount: AccountTypes) => {
 
         return await response.json();
     } catch (error) {
-        return console.log("Error Register New Account:", error);
+        console.error("Error Register New Account:", error);
     }
 }
 
@@ -31,6 +31,6 @@ export const loginUser = async (userInformation: AccountTypes) => {
         });
         return await response.json();
     } catch (error) {
-        return console.log("Error Login:", error);
+        console.error("Error Login:", error);
     }
 }

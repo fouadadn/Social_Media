@@ -31,18 +31,18 @@ export default function AccountSignUp() {
             if (response.token) {
                 localStorage.setItem("Token", response.token);
                 alert(response.message || '');
-                navigate.push('/');
                 setAccount({ name: '', email: '', password: '', password_confirmation: '' });
+                navigate.push('/');
             }
             else if (response.message === "The email has already been taken.") {
                 alert(response.message);
                 return
             }
         } catch (error) {
-            return console.log("Error Register:", error);
+            console.error("Error Register:", error);
         }
     }
-    
+
     return <>
         <section className="w-full h-screen flex justify-center gap-4 p-2">
             <div className="w-[60%] h-full rounded-xl Background-Size hidden lg:flex" style={{ backgroundImage: "url(https://www.luxcafeclub.com/cdn/shop/articles/Minimalist_Modern_Coffee_Shop_1_1200x1200.png?v=1713243107)" }}>

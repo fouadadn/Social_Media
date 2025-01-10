@@ -13,7 +13,7 @@ export async function fetchUserPostsApi() {
         const data = await response.json();
         return data || [];
     } catch (error) {
-        return console.log("Error fetching user posts:", error);
+        console.error("Error fetching user posts:", error);
     }
 }
 
@@ -30,7 +30,7 @@ export async function fetchPostsApi() {
         const data = await response.json();
         return data || [];
     } catch (error) {
-        return console.log("Error fetching posts:", error);
+        console.error("Error fetching posts:", error);
     }
 }
 
@@ -48,7 +48,7 @@ export async function createPostApi(newPost: AddPosteTypes) {
         });
         return await response.json();
     } catch (error) {
-        return console.log("Error creating post:", error);
+        console.error("Error creating post:", error);
     }
 }
 
@@ -64,7 +64,7 @@ export async function deletePostApi(id: number) {
         });
         return await response.json();
     } catch (error) {
-        return console.log("Error deleting post:", error);
+        console.error("Error deleting post:", error);
     }
 }
 
@@ -82,6 +82,6 @@ export async function updatePostApi(id: number, newPost: AddPosteTypes) {
         });
         return await response.json();
     } catch (error) {
-        return console.log("Error updating post:", error);
+        console.error("Error updating post:", error);
     }
 }

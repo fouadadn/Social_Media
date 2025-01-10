@@ -2,11 +2,11 @@
 
 import { shareInfo } from "@/context";
 import Link from "next/link";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 
 export default function Profile() {
     const { userInfo } = useContext(shareInfo);
-    
+
     return <>
         <div className="w-full lg:w-[25%] h-full flex flex-col">
             <div className="w-full h-full flex flex-wrap bg-white">
@@ -21,11 +21,11 @@ export default function Profile() {
             <div className="w-full h-full flex flex-col gap-2 text-[15px] lg:text-[13px] border-t border-b border-gray-200 px-4 py-[12px] bg-white">
                 <div className="flex justify-between items-center">
                     <h1 className="text-gray-500">Followers</h1>
-                    <h1 className="text-blue-700">280</h1>
+                    <h1 className="text-blue-700">{userInfo?.followers?.length ?? 0}</h1>
                 </div>
                 <div className="flex justify-between items-center">
                     <h1 className="text-gray-500">Following</h1>
-                    <h1 className="text-blue-700">60</h1>
+                    <h1 className="text-blue-700">{userInfo?.following?.length ?? 0}</h1>
                 </div>
             </div>
             <div className="w-full h-full flex flex-col gap-3 text-[15px] lg:text-[13px] border-b border-b-gray-200 px-4 py-[12px] bg-white">
