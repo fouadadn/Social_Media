@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "../../styles/index.css";
 import Header from "@/components/header";
-import ShareProvider from "@/context";
+import ShareProvider from "@/context/contextApi";
 
 export const metadata: Metadata = {
     title: "Profile",

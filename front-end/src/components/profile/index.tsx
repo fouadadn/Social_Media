@@ -1,8 +1,8 @@
 'use client'
 
-import { shareInfo } from "@/context";
+import { shareInfo } from "@/context/contextApi";
 import Link from "next/link";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 
 export default function Profile() {
     const { userInfo } = useContext(shareInfo);

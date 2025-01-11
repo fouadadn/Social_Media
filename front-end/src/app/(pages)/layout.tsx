@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "../../styles/index.css";
 import Header from "@/components/header";
 import ReduxProvider from "@/store/reduxprovider";
-import ShareProvider from "@/context";
+import ShareProvider from "@/context/contextApi";
 
 export const metadata: Metadata = {
   title: "Social Media App",

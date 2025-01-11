@@ -10,3 +10,5 @@ export const store = configureStore({
         addPostes: AddPostesSlice
     }
 })
+
+export type RootState = ReturnType<typeof store.getState>

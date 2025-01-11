@@ -17,7 +17,7 @@ export const verfication = (likes: AddPosteTypes[], id: number, userInfo: Accoun
         if (finduser) {
             return 'bg-blue-500 text-white';
         } else {
-            return 'bg-transparent text-black';
+            return 'bg-transparent text-blue-500';
         }
     }
 }

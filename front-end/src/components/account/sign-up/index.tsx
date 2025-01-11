@@ -12,7 +12,7 @@ import { useDispatch } from 'react-redux';
 
 export default function AccountSignUp() {
     const [account, setAccount] = useState<AccountTypes>({ name: '', email: '', password: '', password_confirmation: '' });
-    const dispatch = useDispatch();
+    const reduxDispatch = useDispatch();
     const navigate = useRouter();
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -22,10 +22,14 @@ export default function AccountSignUp() {
 
     const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
-        dispatch(setName(account.name || ''));
-        dispatch(setEmail(account.email || ''));
-        dispatch(setPassword(account.password || ''));
-        dispatch(setPasswordConfirmation(account.password_confirmation || ''));
+        reduxDispatch(setName(account.name || ''));
+        reduxDispatch(setEmail(account.email || ''));
+        reduxDispatch(setPassword(account.password || ''));
+        reduxDispatch(setPasswordConfirmation(account.password_confirmation || ''));
+        await signUp();
+    }
+
+    const signUp = async () => {
         try {
             const response = await registerNewAccount(account);
             if (response.token) {
@@ -36,7 +40,6 @@ export default function AccountSignUp() {
             }
             else if (response.message === "The email has already been taken.") {
                 alert(response.message);
-                return
             }
         } catch (error) {
             console.error("Error Register:", error);

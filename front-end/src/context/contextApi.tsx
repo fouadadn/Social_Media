@@ -26,7 +26,7 @@ export default function ShareProvider({ children }: { children: ReactNode }) {
             const response = await fetchUserInfo(localStorage.getItem("Token") || "")
             setuserInfo(response || {});
         } catch (error) {
-            return console.log("Problem read user information:", error);
+            console.error("Problem read user information:", error);
         }
     }
 
