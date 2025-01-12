@@ -31,7 +31,7 @@ export default function AccountSignUp() {
 
     const signUp = async () => {
         try {
-            const response = await registerNewAccount(account);
+            const response = await registerNewAccount(account ?? {});
             if (response.token) {
                 localStorage.setItem("Token", response.token);
                 alert(response.message || '');

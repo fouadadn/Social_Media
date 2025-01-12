@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "../../styles/index.css";
 import Header from "@/components/header";
 import ShareProvider from "@/context/contextApi";
+import ReduxProvider from "@/store/reduxprovider";
 
 export const metadata: Metadata = {
     title: "Profile",
@@ -22,9 +23,11 @@ export default function RootLayout({
             </head>
             <body>
                 <Header />
-                <ShareProvider>
-                    {children}
-                </ShareProvider>
+                <ReduxProvider>
+                    <ShareProvider>
+                        {children}
+                    </ShareProvider>
+                </ReduxProvider>
             </body>
         </html>
     );

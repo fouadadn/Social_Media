@@ -15,20 +15,15 @@ export interface AddPosteTypes {
     body?: string,
     likes? : AddPosteTypes[]
 }
-export interface reducerPosts {
-    cardsPost: boolean,
+
+export interface reducersTypes {
+    editePost: null | number,
     posts: AddPosteTypes[],
-    isPostReady: boolean,
+    cardsPost: boolean,
+    actions: null | number,
     loading: boolean,
-    editePost: null,
-    actions: null,
-    active: boolean
 }
 
-export interface reducerDashoard {
-    loading: boolean,
-    cardsPost: boolean,
-    actions: null,
-    posts: AddPosteTypes[],
-    editePost: null,
+export interface reducerPosts extends reducersTypes {
+    active: boolean
 }

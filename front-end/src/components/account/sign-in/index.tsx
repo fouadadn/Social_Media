@@ -29,7 +29,7 @@ export default function AccountSignIn() {
 
     const signIn = async () => {
         try {
-            const response = await loginUser(account);
+            const response = await loginUser(account ?? {});
             if (response.token) {
                 localStorage.setItem("Token", response.token);
                 alert(response.message || '');

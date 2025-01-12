@@ -10,23 +10,26 @@ import { FiEdit } from "react-icons/fi";
 import { MdRemoveCircleOutline } from "react-icons/md"
 import { CiMenuKebab } from "react-icons/ci";
 import { AddLikeApi } from "@/api/like";
-import { initialState, reducer } from "@/context/reducerDashboard";
 import { verfication } from "@/utils";
+import { useDispatch, useSelector } from "react-redux";
+import { setActions, setCardsPost, setEditePost, setLoading, setPosts } from "@/slices/dashoardSlice";
+import { RootState } from "@/store/store";
 
 export default function Dashboard() {
     /*---> States <---*/
     const [addPost, setAddPost] = useState<AddPosteTypes>({ title: '', body: '' });
-    const [state, reducerDispatch] = useReducer(reducer, initialState);
     const { userInfo } = useContext(shareInfo);
+    const reduxDispatch = useDispatch();
+    const readStates = useSelector((state: RootState) => state.dashboardSlice);
 
     /*---> Change state to show cardPost <---*/
     const ChangeState = (): void => {
-        reducerDispatch({ type: 'SET_CardsPost', payload: !state?.cardsPost });
+        reduxDispatch(setCardsPost(!readStates?.cardsPost));
         setAddPost({ title: '', body: '' });
     };
     /*---> Change state to show actions button <---*/
     const ShowActions = (index: number): void => {
-        reducerDispatch({ type: 'SET_Actions', payload: state?.actions === index ? null : index });
+        reduxDispatch(setActions(readStates?.actions === index ? null : index));
     }
     /*---> Handel Values <---*/
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -37,29 +40,29 @@ export default function Dashboard() {
     const getUserPosts = async () => {
         try {
             const response = await fetchUserPostsApi();
-            reducerDispatch({ type: "SET_Posts", payload: response || [] });
+            reduxDispatch(setPosts(response ?? []));
         } catch (error) {
             console.error("Problem Get UserPost:", error);
         } finally {
-            reducerDispatch({ type: "SET_Loading", payload: false });
+            reduxDispatch(setLoading(false));
         }
     }
     /*<-- Take information newPost and send to database -->*/
     const createNewPost = async () => {
         try {
-            const response = await createPostApi(addPost || {});
+            const response = await createPostApi(addPost ?? {});
             await getUserPosts();
             alert(response?.message);
             setAddPost({ title: '', body: '' });
         } catch (error) {
             console.error("Problem Create Post:", error);
         } finally {
-            reducerDispatch({ type: 'SET_CardsPost', payload: false });
+            reduxDispatch(setCardsPost(false));
         }
     }
     /*<-- Tcheck if create or update post -->*/
     const handlePostAction = (): void => {
-        if (state?.editePost) {
+        if (readStates?.editePost) {
             UpdatePost();
         } else {
             createNewPost();
@@ -77,20 +80,20 @@ export default function Dashboard() {
     }
     /*<-- Tcheck post at table posts and send his information -->*/
     const EditePost = (id: number) => {
-        const FindTask = state?.posts?.find((item: AddPosteTypes) => item?.id === id);
+        const FindTask = readStates?.posts?.find((item: AddPosteTypes) => item?.id === id);
         if (FindTask) {
-            reducerDispatch({ type: 'SET_EditePost', payload: id })
-            reducerDispatch({ type: 'SET_CardsPost', payload: true });
+            reduxDispatch(setEditePost(id))
+            reduxDispatch(setCardsPost(true));
             setAddPost(FindTask);
         }
     }
     /*<-- Take id post modify and newInformation and send to database -->*/
     const UpdatePost = async () => {
         try {
-            const response = await updatePostApi(state?.editePost ?? 0, addPost);
+            const response = await updatePostApi(readStates?.editePost ?? 0, addPost);
             alert(response?.mesaage);
             await getUserPosts();
-            reducerDispatch({ type: 'SET_CardsPost', payload: false });
+            reduxDispatch(setCardsPost(false));
         } catch (error) {
             console.error("Problem Update UserPost:", error);
         }
@@ -177,7 +180,7 @@ export default function Dashboard() {
                     </div>
                 </div>
                 <div className="w-full h-5/6 flex flex-col gap-3">
-                    {state?.loading ? (
+                    {readStates?.loading ? (
                         <div className="w-full h-full flex justify-center items-center bg-white">
                             <iframe
                                 src="https://lottie.host/embed/4dcaf26b-f660-49c2-974f-30d36cd3ac6a/DLnw3V4GAo.lottie"
@@ -186,8 +189,8 @@ export default function Dashboard() {
                             ></iframe>
                         </div>
                     ) : (
-                        state?.posts && state?.posts?.length > 0 ? (
-                            state?.posts?.map((item: AddPosteTypes) => (
+                        readStates?.posts && readStates?.posts?.length > 0 ? (
+                            readStates?.posts?.map((item: AddPosteTypes) => (
                                 <div key={item?.id} className="w-full flex flex-col rounded-md bg-white">
                                     <div className="flex flex-col px-5">
                                         {/* <!-- User-Info --> */}
@@ -197,7 +200,7 @@ export default function Dashboard() {
                                                 <h1>{userInfo?.name}</h1>
                                             </div>
                                             <div className="w-1/2 flex justify-end items-center gap-3 text-blue-500 cursor-pointer">
-                                                <div className={`w-full h-full flex ${item?.id === state?.actions ? '' : 'hidden'} justify-end items-center gap-3`}>
+                                                <div className={`w-full h-full flex ${item?.id === readStates?.actions ? '' : 'hidden'} justify-end items-center gap-3`}>
                                                     <FiEdit className="text-green-500" onClick={() => EditePost(item?.id ?? 0)} />
                                                     <MdRemoveCircleOutline className="text-red-500 text-lg" onClick={() => deletePost(item?.id ?? 0)} />
                                                 </div>
@@ -246,7 +249,7 @@ export default function Dashboard() {
                         )
                     )}
                 </div>
-                <div className={`w-full h-4/6 ${state?.cardsPost ? 'flex' : 'hidden'} absolute flex-col gap-32 px-5 py-5 rounded-md bg-white shadow-lg`}>
+                <div className={`w-full h-4/6 ${readStates?.cardsPost ? 'flex' : 'hidden'} absolute flex-col gap-32 px-5 py-5 rounded-md bg-white shadow-lg`}>
                     <div className="w-full h-full flex flex-col gap-5">
                         <div className="flex justify-between items-center">
                             <div className="flex items-center gap-4">
@@ -276,7 +279,7 @@ export default function Dashboard() {
                         </div>
                         <button className="px-4 py-2 hover:bg-transparent bg-blue-500 hover:text-blue-500 text-white duration-500 border border-blue-500 rounded-lg"
                             onClick={handlePostAction}>
-                            {state?.editePost ? 'Modify' : 'Post'}
+                            {readStates?.editePost ? 'Modify' : 'Post'}
                         </button>
                     </div>
                 </div>
