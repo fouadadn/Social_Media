@@ -1,65 +1,74 @@
 'use client'
 
 import { createPostApi, fetchUserPostsApi, updatePostApi, deletePostApi } from "@/api/post";
-import { shareInfo } from "@/context";
+import { shareInfo } from "@/context/contextApi";
 import { AddPosteTypes } from "@/types";
 import Link from "next/link";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useReducer, useState } from "react";
 import { LuCircleAlert } from "react-icons/lu";
 import { FiEdit } from "react-icons/fi";
 import { MdRemoveCircleOutline } from "react-icons/md"
 import { CiMenuKebab } from "react-icons/ci";
 import { AddLikeApi } from "@/api/like";
+import { verfication } from "@/utils";
+import { useDispatch, useSelector } from "react-redux";
+import { setActions, setCardsPost, setEditePost, setLoading, setPosts } from "@/slices/dashoardSlice";
+import { RootState } from "@/store/store";
 
 export default function Dashboard() {
-    const [loading, setLoading] = useState<boolean>(true);
+    /*---> States <---*/
     const [addPost, setAddPost] = useState<AddPosteTypes>({ title: '', body: '' });
-    const [cardsPost, setCardsPost] = useState<boolean>(false);
-    const [actions, setActions] = useState<number | null>(null);
-    const [posts, setPosts] = useState<AddPosteTypes[]>([]);
-    const [editePost, setEditePost] = useState<number | null>(null);
     const { userInfo } = useContext(shareInfo);
+    const reduxDispatch = useDispatch();
+    const readStates = useSelector((state: RootState) => state.dashboardSlice);
 
-    const ChangeState = (): void => setCardsPost((prevstate: boolean) => !prevstate);
-    const ShowActions = (index: number): void => setActions((prevstate: number | null) => prevstate === index ? null : index);
-
+    /*---> Change state to show cardPost <---*/
+    const ChangeState = (): void => {
+        reduxDispatch(setCardsPost(!readStates?.cardsPost));
+        setAddPost({ title: '', body: '' });
+    };
+    /*---> Change state to show actions button <---*/
+    const ShowActions = (index: number): void => {
+        reduxDispatch(setActions(readStates?.actions === index ? null : index));
+    }
+    /*---> Handel Values <---*/
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setAddPost((prevstate: AddPosteTypes) => ({ ...prevstate, [name]: value }));
     }
-
+    /*---> Fetch All Posts <---*/
     const getUserPosts = async () => {
         try {
             const response = await fetchUserPostsApi();
-            setPosts(response || []);
+            reduxDispatch(setPosts(response ?? []));
         } catch (error) {
             console.error("Problem Get UserPost:", error);
         } finally {
-            setLoading(false);
+            reduxDispatch(setLoading(false));
         }
     }
-
+    /*<-- Take information newPost and send to database -->*/
     const createNewPost = async () => {
         try {
-            const response = await createPostApi(addPost || {});
+            const response = await createPostApi(addPost ?? {});
             await getUserPosts();
             alert(response?.message);
             setAddPost({ title: '', body: '' });
         } catch (error) {
             console.error("Problem Create Post:", error);
         } finally {
-            setCardsPost(false);
+            reduxDispatch(setCardsPost(false));
         }
     }
-
-    const handlePostAction = () => {
-        if (editePost) {
+    /*<-- Tcheck if create or update post -->*/
+    const handlePostAction = (): void => {
+        if (readStates?.editePost) {
             UpdatePost();
         } else {
             createNewPost();
         }
     }
-
+    /*<-- delete post -->*/
     const deletePost = async (id: number) => {
         try {
             const response = await deletePostApi(id);
@@ -69,55 +78,39 @@ export default function Dashboard() {
             console.error("Problem Remove Post:", error);
         }
     }
-
+    /*<-- Tcheck post at table posts and send his information -->*/
     const EditePost = (id: number) => {
-        const FindTask = posts.find((item: AddPosteTypes) => item?.id === id);
+        const FindTask = readStates?.posts?.find((item: AddPosteTypes) => item?.id === id);
         if (FindTask) {
-            setEditePost(id);
+            reduxDispatch(setEditePost(id))
+            reduxDispatch(setCardsPost(true));
             setAddPost(FindTask);
-            setCardsPost(true);
         }
     }
-
+    /*<-- Take id post modify and newInformation and send to database -->*/
     const UpdatePost = async () => {
         try {
-            const response = await updatePostApi(editePost ?? 0, addPost);
+            const response = await updatePostApi(readStates?.editePost ?? 0, addPost);
             alert(response?.mesaage);
             await getUserPosts();
-            setCardsPost(false);
+            reduxDispatch(setCardsPost(false));
         } catch (error) {
             console.error("Problem Update UserPost:", error);
         }
     }
-
+    /*<-- Like post and send postId to database -->*/
     const likePost = async (id: number) => {
         try {
             const response = await AddLikeApi(id);
-            alert(response?.message ?? '');
+            console.log(response?.message ?? '');
             await getUserPosts();
         } catch (error) {
             console.error("Error add like to post:", error);
         }
     }
-
-    const verficationLike = (likes: AddPosteTypes[]) => {
-        if (!likes || !userInfo) {
-            return
-        }
-        const finduser = likes?.find((item: AddPosteTypes) => item.user_id === userInfo?.id);
-        if (finduser) {
-            return 'text-red-500';
-        } else {
-            return '';
-        }
-    }
-
+    /*<-- Get all posts user created -->*/
     useEffect(() => {
-        if (editePost) {
-            UpdatePost();
-        } else {
-            getUserPosts();
-        }
+        getUserPosts();
     }, []);
 
     return <>
@@ -187,7 +180,7 @@ export default function Dashboard() {
                     </div>
                 </div>
                 <div className="w-full h-5/6 flex flex-col gap-3">
-                    {loading ? (
+                    {readStates?.loading ? (
                         <div className="w-full h-full flex justify-center items-center bg-white">
                             <iframe
                                 src="https://lottie.host/embed/4dcaf26b-f660-49c2-974f-30d36cd3ac6a/DLnw3V4GAo.lottie"
@@ -196,8 +189,8 @@ export default function Dashboard() {
                             ></iframe>
                         </div>
                     ) : (
-                        posts && posts?.length > 0 ? (
-                            posts?.map((item: AddPosteTypes) => (
+                        readStates?.posts && readStates?.posts?.length > 0 ? (
+                            readStates?.posts?.map((item: AddPosteTypes) => (
                                 <div key={item?.id} className="w-full flex flex-col rounded-md bg-white">
                                     <div className="flex flex-col px-5">
                                         {/* <!-- User-Info --> */}
@@ -207,7 +200,7 @@ export default function Dashboard() {
                                                 <h1>{userInfo?.name}</h1>
                                             </div>
                                             <div className="w-1/2 flex justify-end items-center gap-3 text-blue-500 cursor-pointer">
-                                                <div className={`w-full h-full flex ${item?.id === actions ? '' : 'hidden'} justify-end items-center gap-3`}>
+                                                <div className={`w-full h-full flex ${item?.id === readStates?.actions ? '' : 'hidden'} justify-end items-center gap-3`}>
                                                     <FiEdit className="text-green-500" onClick={() => EditePost(item?.id ?? 0)} />
                                                     <MdRemoveCircleOutline className="text-red-500 text-lg" onClick={() => deletePost(item?.id ?? 0)} />
                                                 </div>
@@ -227,7 +220,7 @@ export default function Dashboard() {
                                     <div className="w-full h-[50vh] lg:max-h-[600px] bg-center Background-Size" style={{ backgroundImage: "url(https://media.licdn.com/dms/image/v2/D4E22AQFkEbrAfiv3fw/feedshare-shrink_2048_1536/B4EZP9yHfeHkAo-/0/1735129602184?e=1738800000&v=beta&t=DDAsooUXL9K8CTDcQw4u1squ5CFtZ8riZTOAi7XFG-o)" }}></div>
                                     {/* <!-- Actions --> */}
                                     <ul className="w-full py-5 flex gap-8 px-5">
-                                        <li className={`flex items-center gap-[5px] cursor-pointer ${verficationLike(item?.likes ?? [])}`} onClick={() => likePost(item?.id ?? 0)}>
+                                        <li className={`flex items-center gap-[5px] cursor-pointer ${verfication(item?.likes ?? [], 0, userInfo)}`} onClick={() => likePost(item?.id ?? 0)}>
                                             <i className='bx bxs-heart text-[18px]'></i>
                                             <h1>Jadore</h1>
                                         </li>
@@ -256,7 +249,7 @@ export default function Dashboard() {
                         )
                     )}
                 </div>
-                <div className={`w-full h-4/6 ${cardsPost ? 'flex' : 'hidden'} absolute flex-col gap-32 px-5 py-5 rounded-md bg-white shadow-lg`}>
+                <div className={`w-full h-4/6 ${readStates?.cardsPost ? 'flex' : 'hidden'} absolute flex-col gap-32 px-5 py-5 rounded-md bg-white shadow-lg`}>
                     <div className="w-full h-full flex flex-col gap-5">
                         <div className="flex justify-between items-center">
                             <div className="flex items-center gap-4">
@@ -286,7 +279,7 @@ export default function Dashboard() {
                         </div>
                         <button className="px-4 py-2 hover:bg-transparent bg-blue-500 hover:text-blue-500 text-white duration-500 border border-blue-500 rounded-lg"
                             onClick={handlePostAction}>
-                            {editePost ? 'Modify' : 'Post'}
+                            {readStates?.editePost ? 'Modify' : 'Post'}
                         </button>
                     </div>
                 </div>

@@ -7,12 +7,12 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function Header() {
-    const [ChangeUrl, setChangeUrl] = useState<string>('');
-    const Pathname = usePathname();
-    const Navigate = useRouter()
+    const [changeUrl, setChangeUrl] = useState<string>('');
+    const pathname = usePathname();
+    const navigate = useRouter();
 
     useEffect(() => {
-        switch (Pathname) {
+        switch (pathname) {
             case '/':
                 setChangeUrl("Home")
                 break;
@@ -26,18 +26,18 @@ export default function Header() {
                 setChangeUrl("Home")
                 break;
             default:
-                if (Pathname.startsWith('/profile')) {
+                if (pathname.startsWith('/profile')) {
                     setChangeUrl('Profile')
                 }
                 else {
                     setChangeUrl('');
                 }
         }
-    }, [Pathname]);
+    }, [pathname]);
 
-    const Logout = () => {
+    const logOut = () => {
         localStorage.removeItem("Token")
-        Navigate.push("/sign-up");
+        navigate.push("/sign-up");
     };
 
     return <>
@@ -49,22 +49,22 @@ export default function Header() {
                     </Box>
                 </div>
                 <ul className="w-full lg:w-[35%] flex justify-center gap-10 items-center px-2 lg:px-0 text-[13px]">
-                    <Link href="/" className={`flex flex-col items-center gap-[1px] cursor-pointer ${ChangeUrl === 'Home' ? 'border-b-2 border-black' : ''}`}>
+                    <Link href="/" className={`flex flex-col items-center gap-[1px] cursor-pointer ${changeUrl === 'Home' ? 'border-b-2 border-black' : ''}`}>
                         <i className='bx bx-home text-[20px]'></i>
                         <h1>Accueil</h1>
                     </Link>
-                    <Link href="/profile" className={`flex flex-col items-center gap-[1px] cursor-pointer ${ChangeUrl === 'Profile' ? 'border-b-2 border-black' : ''}`}>
+                    <Link href="/profile" className={`flex flex-col items-center gap-[1px] cursor-pointer ${changeUrl === 'Profile' ? 'border-b-2 border-black' : ''}`}>
                         <i className='bx bxs-user-account text-[20px]'></i>
                         <h1>Profiles</h1>
                     </Link>
-                    <Link href="/" className={`flex flex-col items-center gap-[1px] cursor-pointer ${ChangeUrl === 'Messagerie' ? 'border-b-2 border-black' : ''}`}>
+                    <Link href="/" className={`flex flex-col items-center gap-[1px] cursor-pointer ${changeUrl === 'Messagerie' ? 'border-b-2 border-black' : ''}`}>
                         <i className='bx bxs-chat text-[20px]'></i>
                         <h1>Messagerie</h1>
                     </Link>
                 </ul>
                 <div className='w-[30%] lg:flex justify-end items-center hidden'>
                     <button className='px-4 py-2 text-sm bg-blue-600 hover:bg-transparent border border-blue-500 hover:text-blue-500 duration-500 text-white rounded-md'
-                        onClick={Logout}>
+                        onClick={logOut}>
                         Log out
                     </button>
                 </div>

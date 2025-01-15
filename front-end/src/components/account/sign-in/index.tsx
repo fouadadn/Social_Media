@@ -12,7 +12,7 @@ import { useDispatch } from 'react-redux';
 
 export default function AccountSignIn() {
     const [account, setAccount] = useState<AccountTypes>({ email: '', password: '' });
-    const dispatch = useDispatch();
+    const reduxDispatch = useDispatch();
     const navigate = useRouter();
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -22,10 +22,14 @@ export default function AccountSignIn() {
 
     const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
-        dispatch(setEmail(account.email || ''));
-        dispatch(setPassword(account.password || ''));
+        reduxDispatch(setEmail(account.email || ''));
+        reduxDispatch(setPassword(account.password || ''));
+        await signIn();
+    }
+
+    const signIn = async () => {
         try {
-            const response = await loginUser(account);
+            const response = await loginUser(account ?? {});
             if (response.token) {
                 localStorage.setItem("Token", response.token);
                 alert(response.message || '');
@@ -34,7 +38,6 @@ export default function AccountSignIn() {
             }
             else if (response.message === "email or password is incorrect") {
                 alert(response.message);
-                return
             }
         } catch (error) {
             console.error("Error Login:", error);
