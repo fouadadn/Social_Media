@@ -19,7 +19,6 @@ class SavedPostsController extends Controller implements HasMiddleware
     public function save_post (Request $request , $postId) {
         $post = Posts::find($postId);
 
-
         if(!$post){
             return response()->json(["message" => "post not found"] , 404);
         }
@@ -50,5 +49,15 @@ class SavedPostsController extends Controller implements HasMiddleware
         }
         
         return $saved_posts;
+    }
+
+    public function post_saves(Request $request , $postId){
+        $saves = SavedPosts::where('posts_id' , $postId)->where('user_id' , $request->user()->id)->get();
+
+        if(count($saves , COUNT_RECURSIVE) === 0){
+            return response()->json(['message' => 'no one saved this post']);
+        }
+
+        return response()->json(['data' => count($saves , COUNT_RECURSIVE)]);
     }
 }

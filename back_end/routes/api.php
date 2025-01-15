@@ -37,6 +37,7 @@ Route::get('/user_posts', [PostsController::class, 'user_posts'])->middleware('a
 //likes 
 Route::post('/post/{postId}/like', [PostLikesController::class, 'like']);
 Route::get('/get_liked_posts', [PostLikesController::class, 'get_liked_posts']);
+Route::get('/get_post_likes/{postId}', [PostLikesController::class, 'get_post_likes']);
 
 //comments 
 Route::post('/post/{postId}/add_comment', [PostCommentsController::class, 'add_comment']);
@@ -50,4 +51,5 @@ Route::get('/get_following', [FollowersController::class, 'following']);
 //save post
 Route::post('/save_post/{postId}' , [SavedPostsController::class , 'save_post']);
 Route::get('/saved_post' , [SavedPostsController::class , 'get_saved_posts']);
+Route::get('/post_saves/{postId}', [SavedPostsController::class , 'post_saves']);
 

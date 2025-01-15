@@ -17,14 +17,14 @@ class FollowersController extends Controller implements HasMiddleware
         ];
     }
     public function follow(Request $request, $user_id)
-    {   
-        $followed = Followers::where('follower_id' , $request->user()->id)->where('user_id' , $user_id);
+    {
+        $followed = Followers::where('follower_id', $request->user()->id)->where('user_id', $user_id);
 
         $user = User::find($user_id);
-        if(!$user){
-            return response()->json(['message' => 'user not found'] , 404);
+        if (!$user) {
+            return response()->json(['message' => 'user not found'], 404);
         }
-        if($followed->first()){
+        if ($followed->first()) {
             $followed->delete();
             return response()->json(['message' => 'you unfollowed this person']);
         }
@@ -35,27 +35,40 @@ class FollowersController extends Controller implements HasMiddleware
             'user_id' => $user_id
         ]);
 
+        $following = Followers::where('follower_id', $request->user()->id)->get();
+
+        $users = [];
+        foreach ($following as $foll) {
+            $user =  User::find($foll->user_id);
+            array_push($users, $user);
+        }
         $lifollowiti = User::find($user_id);
-        return response()->json(['message' => "now you follow $lifollowiti->name ", 'data' => $follower], 200);
+        return response()->json([
+            'message' => "now you follow $lifollowiti->name ",
+            'follower' => $follower,
+            'following' => $users
+        ], 200);
     }
 
-    public function followers(Request $request){
+    public function followers(Request $request)
+    {
         $followers = Followers::find($request->user()->id);
 
-        if(!$followers){
-            return response()->json(['message' => 'you have no follower']);
+        if (!$followers) {
+            return response()->json(['message' => 'you have no followers']);
         }
 
         return response()->json(['data' => $followers]);
     }
 
-    public function following(Request $request){
-        $following = Followers::where('follower_id' , $request->user()->id)->get();
+    public function following(Request $request)
+    {
+        $following = Followers::where('follower_id', $request->user()->id)->get();
 
         $users = [];
-        foreach($following as $foll){
+        foreach ($following as $foll) {
             $user =  User::find($foll->user_id);
-            array_push($users , $user);
+            array_push($users, $user);
         }
 
         return $users;

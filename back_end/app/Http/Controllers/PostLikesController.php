@@ -49,4 +49,12 @@ class PostLikesController extends Controller implements HasMiddleware
         return response()->json(["data" => $likedPosts] , 200);
         
     }
+
+    public function get_post_likes(Request $request , $postId){
+        $likes = PostLikes::where('posts_id' , $postId);
+        if(count($likes->get()) === 0){
+            return response()->json(['message' => 'no likes in this post']);
+        }
+        return response()->json(['data' => $likes->get()]);
+    }
 }
