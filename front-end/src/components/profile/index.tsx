@@ -22,19 +22,19 @@ export default function Profile() {
             <div className="w-full h-full flex flex-col gap-2 text-[15px] lg:text-[13px] border-t border-b border-gray-200 px-4 py-[12px] bg-white">
                 <div className="flex justify-between items-center">
                     <h1 className="text-gray-500">Followers</h1>
-                    <h1 className="text-blue-700">{userInfo?.followers?.length ?? 0}</h1>
+                    <h1 className="text-blue-700">{userInfo?.followers?.length ?? "Loading.."}</h1>
                 </div>
                 <div className="flex justify-between items-center">
                     <h1 className="text-gray-500">Following</h1>
-                    <h1 className="text-blue-700">{userInfo?.following?.length ?? 0}</h1>
+                    <h1 className="text-blue-700">{userInfo?.following?.length ?? "Loading.."}</h1>
                 </div>
             </div>
             <div className="w-full h-full flex flex-col gap-3 text-[15px] lg:text-[13px] border-b border-b-gray-200 px-4 py-[12px] bg-white">
-                <Link href="/posts-like" className="flex gap-[8px] items-center cursor-pointer hover:text-green-500 duration-500 text-gray-500">
+                <Link href="/saved-posts" className="flex gap-[8px] items-center cursor-pointer hover:text-green-500 duration-500 text-gray-500">
                     <i className='bx bxs-bookmarks text-[15px] text-green-500'></i>
                     <h1>Éléments enregistrés</h1>
                 </Link>
-                <Link href="/posts-save" className="flex gap-[8px] items-center cursor-pointer hover:text-red-500 duration-500 text-gray-500">
+                <Link href="/liked-posts" className="flex gap-[8px] items-center cursor-pointer hover:text-red-500 duration-500 text-gray-500">
                     <i className='bx bxs-heart text-[15px] text-red-500'></i>
                     <h1>Éléments aimes</h1>
                 </Link>
