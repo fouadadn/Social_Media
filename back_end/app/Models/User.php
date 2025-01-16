@@ -61,4 +61,9 @@ class User extends Authenticatable
     public function saved_posts () {
         return $this->hasMany(savedPosts::class , 'user_id');
     }
+
+    public function following () {
+        return $this->hasMany(Followers::class , 'follower_id');
+        
+    }
 }

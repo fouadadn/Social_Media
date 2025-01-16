@@ -7,6 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Followers extends Model
 {
     protected $fillable = [
-        'username' , 'follower_id' , 'user_id'
+        'username_of_follower' , 'username_of_following' , 'follower_id' , 'user_id'
     ];
 }

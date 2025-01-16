@@ -30,7 +30,8 @@ class FollowersController extends Controller implements HasMiddleware
         }
 
         $follower =  Followers::create([
-            'username' => $request->user()->name,
+            'username_of_follower' => $request->user()->name,
+            'username_of_following' => $user->name,
             'follower_id' => $request->user()->id,
             'user_id' => $user_id
         ]);

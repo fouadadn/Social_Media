@@ -15,4 +15,7 @@ class PostComments extends Model
     public function post(){
         return $this->belongsTo(PostComments::class , 'posts_id');
     }
+    public function likes(){
+        return $this->hasMany(CommentLikes::class);
+    }
 }

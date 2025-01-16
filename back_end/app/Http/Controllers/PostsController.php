@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PostComments;
 use App\Models\Posts;
 use Illuminate\Http\Request;
 
@@ -9,8 +10,8 @@ class PostsController extends Controller
 {
     public function index()
     {
-        $posts = Posts::with('likes' , 'comments')->get();
-        if(!$posts){
+        $posts = Posts::with('likes' , 'comments.likes' , 'saves')->get();
+        if(Count( $posts ) === 0){
             return response()->json(['message' => 'no posts available']);
         }
         return $posts;
@@ -65,7 +66,7 @@ class PostsController extends Controller
 
     public function show($id)
     {
-        $post = Posts::find($id);
+        $post = Posts::with('comments' , 'likes')->find($id);
         if (!$post) {
             return response()->json(['message' => 'no post found'], 404);
         }

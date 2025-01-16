@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PostLikes;
 use App\Models\Posts;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -46,7 +47,13 @@ class PostLikesController extends Controller implements HasMiddleware
             return response()->json(["message" => "no posts liked"]);
         }
 
-        return response()->json(["data" => $likedPosts] , 200);
+        $posts = [];
+        foreach($likedPosts->get() as $post){
+            $post = Posts::find($post->posts_id);
+            array_push($posts , $post);
+        }
+
+        return response()->json(["data" => $posts] , 200);
         
     }
 
@@ -55,6 +62,12 @@ class PostLikesController extends Controller implements HasMiddleware
         if(count($likes->get()) === 0){
             return response()->json(['message' => 'no likes in this post']);
         }
-        return response()->json(['data' => $likes->get()]);
+
+        $users = [];
+        foreach($likes->get() as $user){
+            $user = User::find($user->user_id);
+            array_push($users , $user);
+        }
+        return response()->json(['data' => $users]);
     }
 }

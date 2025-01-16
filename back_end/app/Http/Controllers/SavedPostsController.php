@@ -47,8 +47,14 @@ class SavedPostsController extends Controller implements HasMiddleware
         if(count($saved_posts , COUNT_RECURSIVE) === 0){
             return response()->json(['message' => 'no posts saved'])  ;
         }
+
+        $posts = [];
+        foreach($saved_posts as $save_post ){
+            $post = Posts::find($save_post->posts_id);
+            array_push($posts , $post);
+        }
         
-        return $saved_posts;
+        return response()->json(['data' => $posts] , 200);
     }
 
     public function post_saves(Request $request , $postId){
@@ -58,6 +64,6 @@ class SavedPostsController extends Controller implements HasMiddleware
             return response()->json(['message' => 'no one saved this post']);
         }
 
-        return response()->json(['data' => count($saves , COUNT_RECURSIVE)]);
+        return response()->json(['number_of_saves' => count($saves , COUNT_RECURSIVE)]);
     }
 }

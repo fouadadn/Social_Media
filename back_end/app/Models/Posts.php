@@ -27,4 +27,9 @@ class Posts extends Model
     {
         return $this->hasMany(PostComments::class);
     }
+
+    public function saves()
+    {
+        return $this->hasMany(SavedPosts::class);
+    }
 }

@@ -17,6 +17,13 @@ class AuthController extends Controller implements HasMiddleware
         ];
     }
 
+    public function users()
+    {
+        $users = User::with('following','posts.likes', 'posts.comments', 'followers', 'saved_posts')->get();
+
+        return  response()->json(["data" => $users]);
+    }
+
     public function register(Request $request)
     {
         $fields = $request->validate([
@@ -27,9 +34,13 @@ class AuthController extends Controller implements HasMiddleware
             'cover_image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:4096',
 
         ]);
+        if ($request->hasFile('profile_image')) {
+            $fields['profile_image'] = $request->file('profile_image')->store('profile_images', "public");
+        }
 
-        $fields['profile_image'] = $request->file('profile_image')->store('profile_images' , "public");
-        $fields['cover_image'] = $request->file('cover_image')->store('cover_images' , "public");
+        if ($request->hasFile('cover_image')) {
+            $fields['cover_image'] = $request->file('cover_image')->store('cover_images', "public");
+        }
 
         $user = User::create($fields);
         $token = $user->createToken($request->name);
