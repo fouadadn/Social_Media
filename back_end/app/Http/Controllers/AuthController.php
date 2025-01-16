@@ -22,9 +22,14 @@ class AuthController extends Controller implements HasMiddleware
         $fields = $request->validate([
             'name' => 'required',
             'email' => 'required|unique:users',
-            'password' => 'required|confirmed'
+            'password' => 'required|confirmed',
+            'profile_image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:4096',
+            'cover_image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:4096',
 
         ]);
+
+        $fields['profile_image'] = $request->file('profile_image')->store('profile_images' , "public");
+        $fields['cover_image'] = $request->file('cover_image')->store('cover_images' , "public");
 
         $user = User::create($fields);
         $token = $user->createToken($request->name);

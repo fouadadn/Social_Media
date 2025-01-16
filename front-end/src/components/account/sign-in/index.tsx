@@ -36,7 +36,7 @@ export default function AccountSignIn() {
                 setAccount({ name: '', email: '' });
                 navigate.push('/');
             }
-            else if (response.message === "email or password is incorrect") {
+            else if (response?.message === "email or password is incorrect") {
                 alert(response.message);
             }
         } catch (error) {

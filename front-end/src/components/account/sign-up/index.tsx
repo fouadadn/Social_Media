@@ -32,13 +32,13 @@ export default function AccountSignUp() {
     const signUp = async () => {
         try {
             const response = await registerNewAccount(account ?? {});
-            if (response.token) {
+            if (response?.token) {
                 localStorage.setItem("Token", response.token);
                 alert(response.message || '');
                 setAccount({ name: '', email: '', password: '', password_confirmation: '' });
                 navigate.push('/');
             }
-            else if (response.message === "The email has already been taken.") {
+            else if (response?.message === "The email has already been taken.") {
                 alert(response.message);
             }
         } catch (error) {
