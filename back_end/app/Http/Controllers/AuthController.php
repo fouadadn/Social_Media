@@ -19,7 +19,7 @@ class AuthController extends Controller implements HasMiddleware
 
     public function users()
     {
-        $users = User::with('following','posts.likes', 'posts.comments', 'followers', 'saved_posts')->get();
+        $users = User::with(['following','posts.likes', 'posts.comments' => function ($query) {return $query->WithoutReplies();} , 'posts.comments.replies'    , 'followers', 'saved_posts' ])->get();
 
         return  response()->json(["data" => $users]);
     }

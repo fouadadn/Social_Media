@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PostComments;
+use App\Models\Posts;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -17,6 +18,9 @@ class PostCommentsController extends Controller implements HasMiddleware
     }
     public function add_comment(Request $request, $postId)
     {
+        $post = Posts::find($postId);
+
+        if(!$post) return response()->json(["message" => "post not found"] , 404);
         $request->validate([
             'body' => 'required',
         ]);
@@ -54,5 +58,30 @@ class PostCommentsController extends Controller implements HasMiddleware
         return response()->json([
             'message' => 'comment deleted succussfuly'
         ]);
+    }
+
+    public function reply(Request $request , $commentId){
+        $comment = PostComments::find($commentId);
+
+        if(!$comment){
+            return response()->json(["message" => "comment not found"] , 404);
+        }
+
+        $request->validate([
+            'body' => 'required',
+        ]);
+
+        $reply =  PostComments::create([
+            "username" => $request->user()->name,
+            "body" => $request->body,
+            'user_id' => $request->user()->id,
+            "posts_id" => $comment->posts_id,
+            "post_comments_id" => $commentId
+        ]);
+
+        return response()->json([
+            'message' => 'reply added succussfuly',
+            "data" => $reply
+        ], 200);
     }
 }

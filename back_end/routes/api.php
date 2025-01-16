@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     $user_id = $request->user()->id;
-    $user_request = User::with('posts.likes', 'posts.comments' ,'followers' , 'saved_posts')->find($user_id);
+    $user_request = User::with(['posts.likes', 'posts.comments' => function ($query) {return $query->WithoutReplies();} , 'posts.comments.replies'    , 'followers', 'saved_posts' ])->find($user_id);
 
     $following = Followers::where('follower_id', $user_id)->get();
     $users = [];
@@ -45,6 +45,7 @@ Route::get('/get_post_likes/{postId}', [PostLikesController::class, 'get_post_li
 //comments 
 Route::post('/post/{postId}/add_comment', [PostCommentsController::class, 'add_comment']);
 Route::post('/post/{postId}/delete_comment/{commentId}', [PostCommentsController::class, 'delete_comment']);
+Route::post('/reply/{commentId}', [PostCommentsController::class, 'reply']);
 
 //comment likes
 Route::post('/like_comment/{commentId}' , [CommentLikesController::class , 'like_comment']);

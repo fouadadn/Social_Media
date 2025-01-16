@@ -10,7 +10,7 @@ class PostsController extends Controller
 {
     public function index()
     {
-        $posts = Posts::with('likes' , 'comments.likes' , 'saves')->get();
+        $posts = Posts::with(['likes' , 'comments' => function ($query) {return $query->WithoutReplies();} ,'comments.likes' , 'comments.replies' , 'saves'])->get();
         if(Count( $posts ) === 0){
             return response()->json(['message' => 'no posts available']);
         }
@@ -22,16 +22,16 @@ class PostsController extends Controller
         $formfields =  $request->validate([
             'title' => 'required',
             'body' => 'required',
+            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:4096',
         ]);
 
-        $post =  Posts::create([
-            'title' => $formfields['title'],
-            'body' => $formfields['body'],
-            'username' => $request->user()->name,
-            'user_id' => $request->user()->id
-        ]);
+        if($request->hasFile('image')){
+            $formfields['image'] = $request->file('image')->store('post_images' , 'public');
+        }
+        $formfields['username'] = $request->user()->name;
+        $formfields['user_id'] = $request->user()->id;
 
-
+        $post =  Posts::create($formfields);
         return response()->json(['message' => 'post create succusfuly', 'data' => $post], 200);
     }
 

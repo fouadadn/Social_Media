@@ -16,14 +16,24 @@ class CommentLikesController extends Controller implements HasMiddleware
             new Middleware('auth:sanctum')
         ];
     }
-    public function like_comment(Request $request , $commentId){
+    public function like_comment(Request $request, $commentId)
+    {
         $comment = PostComments::find($commentId);
-        
-        if(!$comment) return response()->json(['message' => 'comment not found'] , 404);
-        
-        $ifliked = CommentLikes::find(1) ;
-        return $request->user()->id;
 
-        // return $ifliked->get() ;
+        if (!$comment) return response()->json(['message' => 'comment not found'], 404);
+
+        $ifliked = CommentLikes::where('user_id', $request->user()->id)->where('post_comments_id', $commentId);
+
+        if ($ifliked->first()) {
+            $ifliked->delete();
+            return response()->json(['message' => 'comment unliked']);
+        }
+
+        CommentLikes::create([
+            'user_id' => $request->user()->id,
+            'post_comments_id' => $commentId,
+        ]);
+
+        return response()->json(['message' => 'comment liked']);
     }
 }
