@@ -1,19 +1,21 @@
 'use client'
 
 import { createPostApi, fetchPostsApi, updatePostApi, deletePostApi } from "@/api/post";
-import { setActions, setCardsPost, setEditePost, setLoading, setPosts } from "@/slices/postsSlice";
+import { setActions, setCardsPost, setEditePost, setFollowing, setLoading, setPosts } from "@/slices/postsSlice";
 import { AddPosteTypes } from "@/types";
-import { useContext, useEffect, useReducer, useState } from "react"
+import { useCallback, useContext, useEffect, useReducer, useState } from "react"
 import { useDispatch, useSelector } from "react-redux";
 import { LuCircleAlert } from "react-icons/lu";
 import { CiMenuKebab } from "react-icons/ci";
 import { shareInfo } from "@/context/contextApi";
 import { FiEdit } from "react-icons/fi";
 import { MdRemoveCircleOutline } from "react-icons/md"
-import { AddLikeApi } from "@/api/like";
-import { newFollowing } from "@/api/following";
+import { FollowingApi, newFollowing } from "@/api/following";
 import { verfication } from "@/utils";
 import { RootState } from "@/store/store";
+import { likeApi, saveApi } from "@/api/postActions";
+import Link from "next/link";
+import { FaRegUser } from "react-icons/fa6";
 
 export default function Posts() {
     /*---> States <---*/
@@ -27,14 +29,16 @@ export default function Posts() {
         reduxDispatch(setCardsPost(!readStates?.cardsPost));
     };
     /*---> Change state to show actions button <---*/
-    const ShowActions = (index: number): void => {
+    const ShowActions = (index: number | null): void => {
         reduxDispatch(setActions(readStates?.actions === index ? null : index));
     }
     /*---> Handel Values <---*/
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
-        const { name, value } = e.target;
-        setAddPost((prevstate: AddPosteTypes) => ({ ...prevstate, [name]: value }));
-    }
+    const handleInputChange = useCallback((
+        (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
+            const { name, value } = e.target;
+            setAddPost((prevstate: AddPosteTypes) => ({ ...prevstate, [name]: value }));
+        }
+    ), [])
     /*---> Fetch All Posts <---*/
     const getPosts = async () => {
         try {
@@ -67,9 +71,9 @@ export default function Posts() {
         }
     }
     /*<-- delete post -->*/
-    const deletePost = async (id: number) => {
+    const deletePost = async (id: number | null) => {
         try {
-            const response = await deletePostApi(id);
+            const response = await deletePostApi(id ?? null);
             alert(response?.message);
             await getPosts();
         } catch (error) {
@@ -77,7 +81,7 @@ export default function Posts() {
         }
     }
     /*<-- Tcheck post at table posts and send his information -->*/
-    const EditePost = (id: number): void => {
+    const EditePost = (id: number | null): void => {
         const findPost = readStates?.posts?.find((item: AddPosteTypes) => item?.id === id);
         if (findPost) {
             reduxDispatch(setEditePost(id))
@@ -88,7 +92,7 @@ export default function Posts() {
     /*<-- Take id post modify and newInformation and send to database -->*/
     const UpdatePost = async () => {
         try {
-            const response = await updatePostApi(readStates?.editePost ?? 0, addPost);
+            const response = await updatePostApi(readStates?.editePost ?? null, addPost);
             alert(response?.mesaage);
             reduxDispatch(setCardsPost(false));
             await getPosts();
@@ -97,33 +101,56 @@ export default function Posts() {
         }
     }
     /*<-- Like post and send postId to database -->*/
-    const likePost = async (id: number) => {
+    const likePost = async (id: number | null) => {
         try {
-            const response = await AddLikeApi(id);
-            console.log(response?.message ?? '');
-            await getPosts();
+            likeApi(id ?? null);
+            getPosts();
         } catch (error) {
-            console.error("Error add like to post:", error);
+            console.error("Error like post:", error);
+        }
+    }
+    /*<-- Save post and send postId to database -->*/
+    const savePost = async (id: number | null) => {
+        try {
+            saveApi(id ?? null);
+            getPosts();
+        } catch (error) {
+            console.error("Error save post:", error);
         }
     }
     /*<-- Following people and send userId to database -->*/
-    const following = async (id: number) => {
+    const following = async (id: number | null) => {
         try {
-            const response = await newFollowing(id);
-            console.log(response?.message ?? '');
+            newFollowing(id ?? null);
+            getFollowing();
         } catch (error) {
             console.error("Error following:", error);
         }
     }
+    /*<-- Get all following -->*/
+    const getFollowing = async () => {
+        try {
+            const response = await FollowingApi();
+            reduxDispatch(setFollowing(response ?? []));
+        } catch (error) {
+            console.error("Error get following:", error);
+        }
+    }
     /*<-- Get all posts when i open application -->*/
     useEffect(() => {
-        getPosts();
+        Promise.all([
+            getPosts(),
+            getFollowing()
+        ])
+            .catch((error) => console.error("Error fetching data:", error));
     }, []);
 
     return <>
         <div className="w-full lg:w-[50%] h-full flex flex-col gap-3 lg:gap-4 relative">
             <div className="w-full flex gap-3 items-center py-3 px-5 rounded-lg bg-white border-t border-b border-gray-200">
-                <div className="p-6 rounded-full Background-Size" style={{ backgroundImage: "url(https://ahmed-hrr.vercel.app/Assets/ahmed-1.jpg)" }}></div>
+                <div className="p-[10px] border border-black rounded-full text-[17px]">
+                    <FaRegUser />
+                </div>
                 <div className="w-full px-5 py-[15px] bg-gray-200 text-[15px] cursor-pointer rounded-full" onClick={ChangeState}>
                     <h1>Create New Poste</h1>
                 </div>
@@ -144,21 +171,23 @@ export default function Posts() {
                                 <div className="flex flex-col px-5">
                                     {/* <!-- User-Info --> */}
                                     <div className="w-full pt-4 flex justify-between items-center">
-                                        <div className="flex items-center gap-4">
-                                            <div className="p-6 rounded-full Background-Size" style={{ backgroundImage: "url(https://ahmed-hrr.vercel.app/Assets/ahmed-1.jpg)" }}></div>
-                                            <h1>Ahmed Hariri</h1>
-                                        </div>
+                                        <Link href={`/profiles/${item?.user_id}`} className="flex items-center gap-3">
+                                            <div className="p-[10px] border border-black rounded-full text-[17px]">
+                                                <FaRegUser />
+                                            </div>
+                                            <h1>{item?.username ?? "loading.."}</h1>
+                                        </Link>
                                         <div className="w-1/2 flex justify-end items-center gap-1 text-blue-500 cursor-pointer">
-                                            <button className={`${item?.user_id !== userInfo?.id ? 'flex' : 'hidden'} ${verfication([], item?.user_id ?? 0, userInfo)} px-[18px] py-[6px] border border-blue-500 rounded-full`}
-                                                onClick={() => following(item?.user_id ?? 0)}>
-                                                {verfication([], item?.user_id ?? 0, userInfo) === 'bg-blue-500 text-white' ? 'Unfolow' : 'folow'}
+                                            <button className={`${item?.user_id !== userInfo?.id ? 'flex' : 'hidden'} ${verfication([], [], userInfo, item?.user_id ?? null, readStates?.following ?? [])} px-[18px] py-[6px] border border-blue-500 rounded-full`}
+                                                onClick={() => following(item?.user_id ?? null)}>
+                                                {verfication([], [], userInfo, item?.user_id ?? null, readStates?.following ?? []) === 'bg-blue-500 text-white' ? 'Unfolow' : 'folow'}
                                             </button>
                                             <div className={`flex items-center gap-2 ${item?.user_id === userInfo?.id ? 'flex' : 'hidden'}`}>
                                                 <div className={`${item?.id === readStates?.actions ? '' : 'hidden'} flex justify-end items-center gap-3`}>
-                                                    <FiEdit className="text-green-500 text-[20px]" onClick={() => EditePost(item?.id ?? 0)} />
-                                                    <MdRemoveCircleOutline className="text-red-500 text-[21px]" onClick={() => deletePost(item?.id ?? 0)} />
+                                                    <FiEdit className="text-green-500 text-[20px]" onClick={() => EditePost(item?.id ?? null)} />
+                                                    <MdRemoveCircleOutline className="text-red-500 text-[21px]" onClick={() => deletePost(item?.id ?? null)} />
                                                 </div>
-                                                <CiMenuKebab className="text-2xl" onClick={() => ShowActions(item?.id ?? 0)} />
+                                                <CiMenuKebab className="text-2xl" onClick={() => ShowActions(item?.id ?? null)} />
                                             </div>
                                         </div>
                                     </div>
@@ -175,8 +204,8 @@ export default function Posts() {
                                 <div className="w-full h-[50vh] lg:max-h-[500px] bg-center Background-Size" style={{ backgroundImage: "url(https://media.licdn.com/dms/image/v2/D4E22AQFkEbrAfiv3fw/feedshare-shrink_2048_1536/B4EZP9yHfeHkAo-/0/1735129602184?e=1738800000&v=beta&t=DDAsooUXL9K8CTDcQw4u1squ5CFtZ8riZTOAi7XFG-o)" }}></div>
                                 {/* <!-- Actions --> */}
                                 <ul className="w-full py-5 flex gap-8 px-5">
-                                    <li className={`flex items-center gap-[5px] cursor-pointer ${verfication(item?.likes ?? [], item?.user_id ?? 0, userInfo)}`}
-                                        onClick={() => likePost(item?.id ?? 0)}>
+                                    <li className={`flex items-center gap-[5px] cursor-pointer ${verfication(item?.likes ?? [], [], userInfo, item?.user_id ?? null, [])}`}
+                                        onClick={() => likePost(item?.id ?? null)}>
                                         <i className='bx bxs-heart text-[18px]'></i>
                                         <h1>Jadore</h1>
                                     </li>
@@ -184,7 +213,8 @@ export default function Posts() {
                                         <i className='bx bxs-comment text-[18px]'></i>
                                         <h1>Comment</h1>
                                     </li>
-                                    <li className="flex items-center gap-[5px] cursor-pointer">
+                                    <li className={`flex items-center gap-[5px] cursor-pointer ${verfication([], item?.saves ?? [], userInfo, item?.user_id ?? null, [])}`}
+                                        onClick={() => savePost(item?.id ?? null)}>
                                         <i className='bx bxs-bookmarks text-[18px]'></i>
                                         <h1>Enregistrer</h1>
                                     </li>
@@ -203,8 +233,10 @@ export default function Posts() {
                 <div className="w-full h-5/6 flex flex-col gap-5">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center gap-4">
-                            <div className="p-6 rounded-full Background-Size" style={{ backgroundImage: "url(https://ahmed-hrr.vercel.app/Assets/ahmed-1.jpg)" }}></div>
-                            <h1>Ahmed Hariri</h1>
+                            <div className="p-[10px] border border-black rounded-full text-[17px]">
+                                <FaRegUser />
+                            </div>
+                            <h1>{userInfo?.name}</h1>
                         </div>
                         <i className='bx bx-x text-3xl cursor-pointer' onClick={ChangeState}></i>
                     </div>

@@ -1,4 +1,4 @@
-import { AddPosteTypes, reducerPosts } from "@/types";
+import { AccountTypes, AddPosteTypes, reducerPosts } from "@/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState: reducerPosts = {
@@ -7,7 +7,8 @@ const initialState: reducerPosts = {
     loading: true,
     editePost: null,
     actions: null,
-    active: false
+    active: false,
+    following: []
 }
 
 export const PostsSlice = createSlice({
@@ -31,9 +32,12 @@ export const PostsSlice = createSlice({
         },
         setActive(state, action: PayloadAction<boolean>) {
             state.active = action.payload
+        },
+        setFollowing(state, action: PayloadAction<AccountTypes[]>) {
+            state.following = action.payload
         }
     }
 });
 
-export const { setCardsPost, setPosts, setLoading, setEditePost, setActions, setActive } = PostsSlice.actions;
+export const { setCardsPost, setPosts, setLoading, setEditePost, setActions, setActive, setFollowing } = PostsSlice.actions;
 export default PostsSlice.reducer;

@@ -53,7 +53,7 @@ export async function createPostApi(newPost: AddPosteTypes) {
 }
 
 // Delete Post
-export async function deletePostApi(id: number) {
+export async function deletePostApi(id: number | null) {
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/${id}`, {
             method: "DELETE",
@@ -69,7 +69,7 @@ export async function deletePostApi(id: number) {
 }
 
 // Update Post
-export async function updatePostApi(id: number, newPost: AddPosteTypes) {
+export async function updatePostApi(id: number | null, newPost: AddPosteTypes) {
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/${id}`, {
             method: "PUT",
