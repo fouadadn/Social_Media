@@ -9,11 +9,11 @@ import { LuCircleAlert } from "react-icons/lu";
 import { FiEdit } from "react-icons/fi";
 import { MdRemoveCircleOutline } from "react-icons/md"
 import { CiMenuKebab } from "react-icons/ci";
-import { AddLikeApi } from "@/api/like";
 import { verfication } from "@/utils";
 import { useDispatch, useSelector } from "react-redux";
 import { setActions, setCardsPost, setEditePost, setLoading, setPosts } from "@/slices/dashoardSlice";
 import { RootState } from "@/store/store";
+import { likeApi } from "@/api/postActions";
 
 export default function Dashboard() {
     /*---> States <---*/
@@ -101,7 +101,7 @@ export default function Dashboard() {
     /*<-- Like post and send postId to database -->*/
     const likePost = async (id: number) => {
         try {
-            const response = await AddLikeApi(id);
+            const response = await likeApi(id);
             console.log(response?.message ?? '');
             await getUserPosts();
         } catch (error) {
@@ -220,7 +220,7 @@ export default function Dashboard() {
                                     <div className="w-full h-[50vh] lg:max-h-[600px] bg-center Background-Size" style={{ backgroundImage: "url(https://media.licdn.com/dms/image/v2/D4E22AQFkEbrAfiv3fw/feedshare-shrink_2048_1536/B4EZP9yHfeHkAo-/0/1735129602184?e=1738800000&v=beta&t=DDAsooUXL9K8CTDcQw4u1squ5CFtZ8riZTOAi7XFG-o)" }}></div>
                                     {/* <!-- Actions --> */}
                                     <ul className="w-full py-5 flex gap-8 px-5">
-                                        <li className={`flex items-center gap-[5px] cursor-pointer ${verfication(item?.likes ?? [], 0, userInfo)}`} onClick={() => likePost(item?.id ?? 0)}>
+                                        <li className={`flex items-center gap-[5px] cursor-pointer ${verfication(item?.likes ?? [], [], userInfo, item?.user_id ?? null, [])}`} onClick={() => likePost(item?.id ?? 0)}>
                                             <i className='bx bxs-heart text-[18px]'></i>
                                             <h1>Jadore</h1>
                                         </li>

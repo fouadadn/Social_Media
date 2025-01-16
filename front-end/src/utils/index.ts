@@ -1,6 +1,6 @@
 import { AccountTypes, AddPosteTypes } from "@/types";
 
-export const verfication = (likes: AddPosteTypes[], id: number, userInfo: AccountTypes): string | undefined => {
+export const verfication = (likes: AddPosteTypes[], saves: AddPosteTypes[], userInfo: AccountTypes, id: number | null, following: AccountTypes[]): string | undefined => {
     if (!userInfo) {
         return
     }
@@ -12,12 +12,21 @@ export const verfication = (likes: AddPosteTypes[], id: number, userInfo: Accoun
             return 'text-black';
         }
     }
+
+    if (saves && saves?.length > 0) {
+        const finduser = saves?.find((item: AddPosteTypes) => item?.user_id === userInfo?.id);
+        if (finduser) {
+            return 'text-green-500';
+        } else {
+            return 'text-black';
+        }
+    }
     if (id) {
-        const finduser = userInfo?.following?.find((item: AccountTypes) => item?.id === id);
+        const finduser = following?.find((item: AccountTypes) => item?.id === id);
         if (finduser) {
             return 'bg-blue-500 text-white';
         } else {
-            return 'bg-transparent text-blue-500';
+            return 'bg-transparent';
         }
     }
 }
