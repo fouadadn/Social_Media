@@ -27,6 +27,7 @@ class PostCommentsController extends Controller implements HasMiddleware
 
         $comment =  PostComments::create([
             "username" => $request->user()->name,
+            "profile_image" => $request->user()->profile_image,
             "body" => $request->body,
             'user_id' => $request->user()->id,
             "posts_id" => $postId
@@ -69,6 +70,7 @@ class PostCommentsController extends Controller implements HasMiddleware
 
         $request->validate([
             'body' => 'required',
+            "post_comments_id" => 'required|int'
         ]);
 
         $reply =  PostComments::create([

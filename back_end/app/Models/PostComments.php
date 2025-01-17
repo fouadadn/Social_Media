@@ -11,6 +11,7 @@ class PostComments extends Model
         'user_id',
         'posts_id',
         'body',
+        "profile_image",
         'post_comments_id'
     ];
 

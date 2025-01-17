@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('post_comments', function (Blueprint $table) {
             $table->id();
             $table->string('username');
+            $table->string('profile_image');
             $table->string( 'body');
             $table->foreignId('posts_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
