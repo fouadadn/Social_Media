@@ -32,6 +32,8 @@ Route::get('/users' , [AuthController::class , 'users']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
+Route::post('/update_user', [AuthController::class, 'update_User']);
+
 
 //posts
 Route::apiResource('posts', PostsController::class)->middleware('auth:sanctum');
