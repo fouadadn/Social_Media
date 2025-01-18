@@ -32,6 +32,7 @@ class PostLikesController extends Controller implements HasMiddleware
         
         PostLikes::create([
             'user_id' => $request->user()->id,
+            'profile_image' => $request->user()->profile_image,
             'posts_id' => $postId,
             'username' => $request->user()->name,
         ]);

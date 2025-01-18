@@ -8,6 +8,8 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Hash;
 
+use function Laravel\Prompts\password;
+
 class AuthController extends Controller implements HasMiddleware
 {
     public static function middleware()
@@ -78,5 +80,43 @@ class AuthController extends Controller implements HasMiddleware
     {
         $request->user()->tokens()->delete();
         return response()->json(['message' => 'you are logged out'], 200);
+    }
+
+    public function update_User(Request $request){
+        $user = $request->user();
+
+        $request->validate(['old_password' => 'required']) ;
+
+        if(!Hash::check($request->old_password , $user->password)){
+            return 'password is incorrect'; 
+        }
+
+        $fields =  $request->validate([
+            'name' => 'string',
+            'email' => 'string|unique:users',
+            'new_password' => 'string',
+            'profile_image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:4096',
+            'cover_image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:4096',
+            'bio' => 'string'
+        ]);
+
+        if($request->hasFile('profile_image')){
+            $fields['profile_image'] = $request->file('profile_image')->store('profile_images', "public");
+        }
+        if($request->hasFile('cover_image')){
+            $fields['cover_image'] = $request->file('cover_image')->store('cover_images', "public");
+        }
+        if($request->has('new_password')){
+            $fields['password'] = Hash::make($request->new_password);
+        }
+        
+          
+        $newUser = $user->update($fields);
+        if($newUser){
+            return response()->json(['message' => 'user updated successfully' , 'if updated' => $newUser]);
+        }
+
+        return response()->json(['message' => 'somthing went wrong' , 'if updated ' => $newUser]);
+        
     }
 }
