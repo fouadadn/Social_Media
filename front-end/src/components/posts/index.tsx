@@ -1,8 +1,8 @@
 'use client'
 
 import { createPostApi, fetchPostsApi, updatePostApi, deletePostApi } from "@/api/post";
-import { setActions, setCardsPost, setEditePost, setFollowing, setLoading, setPosts } from "@/slices/postsSlice";
-import { AddPosteTypes } from "@/types";
+import { setActions, setActionsComments, setCardsPost, setEditePost, setFollowing, setLoading, setPosts, setshowComments, setShowReplay, setUsersLiked } from "@/slices/postsSlice";
+import { AddPosteTypes, CommentsTypes } from "@/types";
 import { useCallback, useContext, useEffect, useReducer, useState } from "react"
 import { useDispatch, useSelector } from "react-redux";
 import { LuCircleAlert } from "react-icons/lu";
@@ -13,13 +13,16 @@ import { MdRemoveCircleOutline } from "react-icons/md"
 import { FollowingApi, newFollowing } from "@/api/following";
 import { verfication } from "@/utils";
 import { RootState } from "@/store/store";
-import { likeApi, saveApi } from "@/api/postActions";
+import { likeApi, saveApi, UserslikedApi } from "@/api/postActions";
 import Link from "next/link";
 import { FaRegUser } from "react-icons/fa6";
+import { AddCommentApi, LikeCommentApi, RemoveCommentApi, ReplyCommentApi } from "@/api/comments";
 
 export default function Posts() {
     /*---> States <---*/
     const [addPost, setAddPost] = useState<AddPosteTypes>({ title: '', body: '' });
+    const [commentPost, setCommentPost] = useState<string>('');
+    const [replyComment, setReplyComment] = useState<string>('');
     const { userInfo } = useContext(shareInfo);
     const reduxDispatch = useDispatch();
     const readStates = useSelector((state: RootState) => state.posts);
@@ -28,9 +31,18 @@ export default function Posts() {
     const ChangeState = (): void => {
         reduxDispatch(setCardsPost(!readStates?.cardsPost));
     };
-    /*---> Change state to show actions button <---*/
+    /*---> Change states <---*/
     const ShowActions = (index: number | null): void => {
         reduxDispatch(setActions(readStates?.actions === index ? null : index));
+    }
+    const ShowComments = (index: number | null): void => {
+        reduxDispatch(setshowComments(readStates?.showComments === index ? null : index));
+    }
+    const ShowActionsComment = (index: number | null): void => {
+        reduxDispatch(setActionsComments(readStates?.actionsComments === index ? null : index));
+    }
+    const ShowReplyComment = (index: number | null): void => {
+        reduxDispatch(setShowReplay(readStates?.showReplay === index ? null : index));
     }
     /*---> Handel Values <---*/
     const handleInputChange = useCallback((
@@ -38,7 +50,13 @@ export default function Posts() {
             const { name, value } = e.target;
             setAddPost((prevstate: AddPosteTypes) => ({ ...prevstate, [name]: value }));
         }
-    ), [])
+    ), []);
+    const handelChangeComment = useCallback((e: React.ChangeEvent<HTMLInputElement>): void => {
+        setCommentPost(e.target.value)
+    }, []);
+    const handelChangeReplyComment = useCallback((e: React.ChangeEvent<HTMLInputElement>): void => {
+        setReplyComment(e.target.value)
+    }, []);
     /*---> Fetch All Posts <---*/
     const getPosts = async () => {
         try {
@@ -54,8 +72,8 @@ export default function Posts() {
     const CreatePost = async () => {
         try {
             const response = await createPostApi(addPost || {});
-            await getPosts();
             if (response?.message === 'post create succusfuly') { alert(response.message) }
+            getPosts();
             setAddPost({ title: '', body: '' });
             reduxDispatch(setCardsPost(false));
         } catch (error) {
@@ -75,7 +93,7 @@ export default function Posts() {
         try {
             const response = await deletePostApi(id ?? null);
             alert(response?.message);
-            await getPosts();
+            reduxDispatch(setPosts(readStates?.posts.filter((item: AddPosteTypes) => item?.id !== id)));
         } catch (error) {
             console.error("Problem Remove Post:", error);
         }
@@ -94,8 +112,11 @@ export default function Posts() {
         try {
             const response = await updatePostApi(readStates?.editePost ?? null, addPost);
             alert(response?.mesaage);
+            reduxDispatch(setPosts(readStates?.posts.map((item: AddPosteTypes) => (
+                item?.id === readStates?.editePost ? addPost : item))
+            ));
+            setAddPost({ title: '', body: '' });
             reduxDispatch(setCardsPost(false));
-            await getPosts();
         } catch (error) {
             console.error("Problem Update Post:", error);
         }
@@ -103,8 +124,8 @@ export default function Posts() {
     /*<-- Like post and send postId to database -->*/
     const likePost = async (id: number | null) => {
         try {
-            likeApi(id ?? null);
-            getPosts();
+            await likeApi(id ?? null);
+            getPosts()
         } catch (error) {
             console.error("Error like post:", error);
         }
@@ -112,7 +133,7 @@ export default function Posts() {
     /*<-- Save post and send postId to database -->*/
     const savePost = async (id: number | null) => {
         try {
-            saveApi(id ?? null);
+            await saveApi(id ?? null);
             getPosts();
         } catch (error) {
             console.error("Error save post:", error);
@@ -121,7 +142,7 @@ export default function Posts() {
     /*<-- Following people and send userId to database -->*/
     const following = async (id: number | null) => {
         try {
-            newFollowing(id ?? null);
+            await newFollowing(id ?? null);
             getFollowing();
         } catch (error) {
             console.error("Error following:", error);
@@ -136,13 +157,54 @@ export default function Posts() {
             console.error("Error get following:", error);
         }
     }
+    /*<-- Add New Comment -->*/
+    const addComment = async (id: number | null) => {
+        try {
+            const response = await AddCommentApi(id ?? null, commentPost);
+            console.log(response?.message);
+            setCommentPost('');
+            getPosts();
+        } catch (error) {
+            console.error("Error Comment post:", error);
+        }
+    }
+    /*<-- Remove Comment -->*/
+    const removeComment = async (id_post: number | null, id_comment: number | null) => {
+        try {
+            const response = await RemoveCommentApi(id_post ?? null, id_comment ?? null);
+            console.log(response?.message);
+            getPosts();
+        } catch (error) {
+            console.error("Error Remove Comment in post:", error);
+        }
+    }
+    /*<-- Like Comment -->*/
+    const LikeComment = async (id: number | null) => {
+        try {
+            const response = await LikeCommentApi(id ?? null);
+            console.log(response?.message);
+            getPosts();
+        } catch (error) {
+            console.error("Error Remove Comment in post:", error);
+        }
+    }
+    /*<-- Reply Comment -->*/
+    const ReplyComment = async (id: number | null) => {
+        try {
+            const response = await ReplyCommentApi(id ?? null, replyComment ?? null);
+            console.log(response?.message);
+            setReplyComment("");
+            reduxDispatch(setShowReplay(null));
+            getPosts();
+        } catch (error) {
+            console.error("Error Remove Comment in post:", error);
+        }
+    }
     /*<-- Get all posts when i open application -->*/
     useEffect(() => {
-        Promise.all([
-            getPosts(),
-            getFollowing()
-        ])
-            .catch((error) => console.error("Error fetching data:", error));
+        Promise.all(
+            [getPosts(), getFollowing()]
+        ).catch((error) => console.error("Error fetching data:", error));
     }, []);
 
     return <>
@@ -151,8 +213,9 @@ export default function Posts() {
                 <div className="p-[10px] border border-black rounded-full text-[17px]">
                     <FaRegUser />
                 </div>
-                <div className="w-full px-5 py-[15px] bg-gray-200 text-[15px] cursor-pointer rounded-full" onClick={ChangeState}>
-                    <h1>Create New Poste</h1>
+                <div className="w-full px-5 py-[15px] bg-gray-200 text-[15px] cursor-pointer rounded-full"
+                    onClick={ChangeState}>
+                    <h1>Create New Post</h1>
                 </div>
             </div>
             <div className="w-full flex flex-col gap-3">
@@ -166,10 +229,9 @@ export default function Posts() {
                     </div>
                 ) : (
                     readStates?.posts && readStates?.posts?.length > 0 ? (
-                        readStates?.posts?.map((item: AddPosteTypes) => (
-                            <div key={item?.id} className="flex flex-col bg-white rounded-lg">
+                        readStates?.posts?.map((item: AddPosteTypes, index) => (
+                            <div key={index} className="flex flex-col bg-white rounded-lg">
                                 <div className="flex flex-col px-5">
-                                    {/* <!-- User-Info --> */}
                                     <div className="w-full pt-4 flex justify-between items-center">
                                         <Link href={`/profiles/${item?.user_id}`} className="flex items-center gap-3">
                                             <div className="p-[10px] border border-black rounded-full text-[17px]">
@@ -178,24 +240,24 @@ export default function Posts() {
                                             <h1>{item?.username ?? "loading.."}</h1>
                                         </Link>
                                         <div className="w-1/2 flex justify-end items-center gap-1 text-blue-500 cursor-pointer">
-                                            <button className={`${item?.user_id !== userInfo?.id ? 'flex' : 'hidden'} ${verfication([], [], userInfo, item?.user_id ?? null, readStates?.following ?? [])} px-[18px] py-[6px] border border-blue-500 rounded-full`}
+                                            <button className={`${item?.user_id !== userInfo?.id ? 'flex' : 'hidden'} ${verfication([], [], userInfo, item?.user_id ?? null, readStates?.following ?? [], [])} px-[18px] py-[6px] border border-blue-500 rounded-full`}
                                                 onClick={() => following(item?.user_id ?? null)}>
-                                                {verfication([], [], userInfo, item?.user_id ?? null, readStates?.following ?? []) === 'bg-blue-500 text-white' ? 'Unfolow' : 'folow'}
+                                                {verfication([], [], userInfo, item?.user_id ?? null, readStates?.following ?? [], []) === 'bg-blue-500 text-white' ? 'Unfolow' : 'folow'}
                                             </button>
                                             <div className={`flex items-center gap-2 ${item?.user_id === userInfo?.id ? 'flex' : 'hidden'}`}>
                                                 <div className={`${item?.id === readStates?.actions ? '' : 'hidden'} flex justify-end items-center gap-3`}>
-                                                    <FiEdit className="text-green-500 text-[20px]" onClick={() => EditePost(item?.id ?? null)} />
-                                                    <MdRemoveCircleOutline className="text-red-500 text-[21px]" onClick={() => deletePost(item?.id ?? null)} />
+                                                    <FiEdit className="text-green-500 text-[20px]"
+                                                        onClick={() => EditePost(item?.id ?? null)} />
+                                                    <MdRemoveCircleOutline className="text-red-500 text-[21px]"
+                                                        onClick={() => deletePost(item?.id ?? null)} />
                                                 </div>
                                                 <CiMenuKebab className="text-2xl" onClick={() => ShowActions(item?.id ?? null)} />
                                             </div>
                                         </div>
                                     </div>
-                                    {/* <!-- Title --> */}
                                     <div className="w-full pt-5 flex flex-col">
                                         <p className="text-xl">{item?.title}</p>
                                     </div>
-                                    {/* <!-- Description --> */}
                                     <div className="w-full py-6 flex flex-col">
                                         <p className="text-sm">{item?.body}</p>
                                     </div>
@@ -204,25 +266,100 @@ export default function Posts() {
                                 <div className="w-full h-[50vh] lg:max-h-[500px] bg-center Background-Size" style={{ backgroundImage: "url(https://media.licdn.com/dms/image/v2/D4E22AQFkEbrAfiv3fw/feedshare-shrink_2048_1536/B4EZP9yHfeHkAo-/0/1735129602184?e=1738800000&v=beta&t=DDAsooUXL9K8CTDcQw4u1squ5CFtZ8riZTOAi7XFG-o)" }}></div>
                                 {/* <!-- Actions --> */}
                                 <ul className="w-full py-5 flex gap-8 px-5">
-                                    <li className={`flex items-center gap-[5px] cursor-pointer ${verfication(item?.likes ?? [], [], userInfo, item?.user_id ?? null, [])}`}
+                                    <li className={`flex items-center gap-[5px] cursor-pointer ${verfication(item?.likes ?? [], [], userInfo, item?.user_id ?? null, [], [])}`}
                                         onClick={() => likePost(item?.id ?? null)}>
-                                        <i className='bx bxs-heart text-[18px]'></i>
-                                        <h1>Jadore</h1>
+                                        <i className='bx bxs-heart text-[20px]'></i>
+                                        <h1>Like</h1>
                                     </li>
-                                    <li className="flex items-center gap-[5px] cursor-pointer">
+                                    <li className={`flex items-center gap-[5px] cursor-pointer ${readStates?.showComments ? "text-blue-500" : ""}`}
+                                        onClick={() => ShowComments(item?.id ?? null)}>
                                         <i className='bx bxs-comment text-[18px]'></i>
                                         <h1>Comment</h1>
                                     </li>
-                                    <li className={`flex items-center gap-[5px] cursor-pointer ${verfication([], item?.saves ?? [], userInfo, item?.user_id ?? null, [])}`}
+                                    <li className={`flex items-center gap-[5px] cursor-pointer ${verfication([], item?.saves ?? [], userInfo, item?.user_id ?? null, [], [])}`}
                                         onClick={() => savePost(item?.id ?? null)}>
                                         <i className='bx bxs-bookmarks text-[18px]'></i>
-                                        <h1>Enregistrer</h1>
+                                        <h1>Save</h1>
+                                    </li>
+                                    <li className="flex items-center gap-[5px] cursor-pointer">
+                                        <i className='bx bx-share text-[18px]'></i>
+                                        <h1>Share</h1>
                                     </li>
                                 </ul>
+                                {/* <!-- Add Comments --> */}
+                                <div className={`w-full flex items-center gap-3 px-5 pb-2 ${readStates?.showComments === item?.id ? 'flex' : 'hidden'}`}>
+                                    <input
+                                        type="text"
+                                        placeholder="Add Comment"
+                                        className="w-full pl-5 text-black placeholder:text-gray-500 focus:outline-none py-3 rounded-full border border-gray-500"
+                                        onChange={handelChangeComment}
+                                        value={commentPost} />
+                                    <button className="px-5 py-2 bg-blue-500 text-white rounded-lg" onClick={() => addComment(item?.id ?? null)}>
+                                        Add
+                                    </button>
+                                </div>
+                                {/* <!-- Show Comments --> */}
+                                <div className={`w-full flex flex-col gap-3 ${readStates?.showComments === item?.id ? 'flex' : 'hidden'}`}>
+                                    {item?.comments?.map((comment: CommentsTypes, index: number) => (
+                                        <div key={index} className="w-full flex flex-col items-start gap-1 py-3 pl-4 pr-4">
+                                            <div className="w-full flex justify-between items-center gap-1">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="p-[10px] border border-black rounded-full text-[17px]">
+                                                        <FaRegUser />
+                                                    </div>
+                                                    <ul className="flex flex-col">
+                                                        <li>{comment?.username}</li>
+                                                        <li>{comment?.body}</li>
+                                                    </ul>
+                                                </div>
+                                                <div className={`flex items-center gap-2 ${comment?.id === readStates?.showReplay ? 'flex' : 'hidden'}`}>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Reply Comment"
+                                                        value={replyComment}
+                                                        onChange={handelChangeReplyComment}
+                                                        className="w-full pl-5 py-2 text-black placeholder:text-gray-500 focus:outline-none rounded-full border border-gray-500" />
+                                                    <button className="px-4 py-2 text-sm bg-blue-500 text-white rounded-lg" onClick={() => ReplyComment(comment?.id ?? null)}>
+                                                        Add
+                                                    </button>
+                                                </div>
+                                                <div className={`flex items-center gap-2 ${comment?.user_id === userInfo?.id ? 'flex' : 'hidden'}`}>
+                                                    <MdRemoveCircleOutline className={`text-red-500 text-[21px] cursor-pointer ${comment?.id === readStates?.actionsComments ? '' : 'hidden'}`}
+                                                        onClick={() => removeComment(item?.id ?? null, comment?.id ?? null)} />
+                                                    <CiMenuKebab className="text-2xl cursor-pointer" onClick={() => ShowActionsComment(comment?.id ?? null)} />
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-4 ml-12">
+                                                <button className={`text-[15px] ${comment?.user_id !== userInfo?.id ? 'flex' : 'hidden'}`}
+                                                    onClick={() => ShowReplyComment(comment?.id ?? null)}>
+                                                    Reply
+                                                </button>
+                                                <li className={`flex items-center gap-[5px] cursor-pointer ${verfication([], [], userInfo, item?.user_id ?? null, [], comment?.likes ?? [])}`}
+                                                    onClick={() => LikeComment(comment?.id ?? null)}>
+                                                    <i className='bx bxs-heart text-[17px]'></i>
+                                                    <h1>Like</h1>
+                                                </li>
+                                            </div>
+                                            <div className={`w-full flex flex-col gap-3 mt-2 ml-12 ${comment?.replies.length > 0 ? "flex" : "hidden"}`}>
+                                                {comment?.replies?.map((reply: CommentsTypes, index: number) => (
+                                                    <div key={index} className="flex items-center gap-3">
+                                                        <div className="p-[10px] border border-black rounded-full text-[17px]">
+                                                            <FaRegUser />
+                                                        </div>
+                                                        <ul className="flex flex-col">
+                                                            <li>{reply?.username}</li>
+                                                            <li>{reply?.body}</li>
+                                                        </ul>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         ))
                     ) : (
-                        <div className="w-full h-[20vh] flex flex-col gap-3 justify-center items-center bg-white">
+                        <div className="w-full h-[30vh] flex flex-col gap-3 justify-center items-center bg-white">
                             <LuCircleAlert className="text-5xl" />
                             <h1 className="text-xl">We dont have posts!</h1>
                         </div>
@@ -242,7 +379,7 @@ export default function Posts() {
                     </div>
                     <input
                         type="text"
-                        placeholder="Tittle Post"
+                        placeholder="Title Post"
                         className="text-black placeholder:text-gray-500 focus:outline-none"
                         name="title"
                         onChange={handleInputChange}
@@ -260,7 +397,7 @@ export default function Posts() {
                         <button className="px-3 py-2 bg-green-500 text-white rounded-lg">Picture</button>
                     </div>
                     <button className="px-4 py-2 bg-blue-500 text-white rounded-lg" onClick={handlePostAction}>
-                        {readStates?.editePost ? 'Modify' : 'Post'}
+                        {readStates?.editePost ? 'Modify' : 'Create'}
                     </button>
                 </div>
             </div>
