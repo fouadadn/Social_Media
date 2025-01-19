@@ -32,21 +32,20 @@ Route::get('/users' , [AuthController::class , 'users']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
-Route::post('/update_user', [AuthController::class, 'update_User']);
-
+Route::put('/update_user', [AuthController::class, 'update_User']);
 
 //posts
 Route::apiResource('posts', PostsController::class)->middleware('auth:sanctum');
 Route::get('/user_posts', [PostsController::class, 'user_posts'])->middleware('auth:sanctum');
 
-//likes 
+//likes
 Route::post('/post/{postId}/like', [PostLikesController::class, 'like']);
 Route::get('/get_liked_posts', [PostLikesController::class, 'get_liked_posts']);
 Route::get('/get_post_likes/{postId}', [PostLikesController::class, 'get_post_likes']);
 
-//comments 
+//comments
 Route::post('/post/{postId}/add_comment', [PostCommentsController::class, 'add_comment']);
-Route::post('/post/{postId}/delete_comment/{commentId}', [PostCommentsController::class, 'delete_comment']);
+Route::delete('/post/{postId}/delete_comment/{commentId}', [PostCommentsController::class, 'delete_comment']);
 Route::post('/reply/{commentId}', [PostCommentsController::class, 'reply']);
 
 //comment likes
@@ -59,6 +58,5 @@ Route::get('/get_following', [FollowersController::class, 'following']);
 
 //save post
 Route::post('/save_post/{postId}' , [SavedPostsController::class , 'save_post']);
-Route::get('/saved_post' , [SavedPostsController::class , 'get_saved_posts']);
-Route::get('/post_saves/{postId}', [SavedPostsController::class , 'post_saves']);
-
+Route::get('/get_saved_posts' , [SavedPostsController::class , 'get_saved_posts']);
+Route::get('/get_post_saves/{postId}', [SavedPostsController::class , 'post_saves']);

@@ -26,6 +26,10 @@ class AuthController extends Controller implements HasMiddleware
         return  response()->json(["data" => $users]);
     }
 
+    public function user_info(Request $request ,$userId){
+
+    }
+
     public function register(Request $request)
     {
         $fields = $request->validate([

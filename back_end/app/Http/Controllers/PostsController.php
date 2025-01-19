@@ -10,13 +10,15 @@ class PostsController extends Controller
 {
     public function index()
     {
-        $posts = Posts::with(['likes' , 'comments' => function ($query) {return $query->WithoutReplies();} ,'comments.likes' , 'comments.replies' , 'saves'])->get();
-        if(Count( $posts ) === 0){
+        $posts = Posts::with(['likes', 'comments' => function ($query) {
+            return $query->WithoutReplies();
+        }, 'comments.likes', 'comments.replies', 'saves'])->get();
+        if (Count($posts) === 0) {
             return response()->json(['message' => 'no posts available']);
         }
         return $posts;
     }
-
+    
     public function store(Request $request)
     {
         $formfields =  $request->validate([
@@ -25,8 +27,8 @@ class PostsController extends Controller
             'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:4096',
         ]);
 
-        if($request->hasFile('image')){
-            $formfields['image'] = $request->file('image')->store('post_images' , 'public');
+        if ($request->hasFile('image')) {
+            $formfields['image'] = $request->file('image')->store('post_images', 'public');
         }
         $formfields['username'] = $request->user()->name;
         $formfields['user_id'] = $request->user()->id;
@@ -38,8 +40,8 @@ class PostsController extends Controller
     public function update(Request $request, $id)
     {
         $fields = $request->validate([
-            'title' => 'required',
-            'body' => 'required',
+            'title' => 'string',
+            'body' => 'required|string',
         ]);
 
         $post = Posts::find($id);
@@ -53,7 +55,6 @@ class PostsController extends Controller
             return response()->json(['message' => 'its not your post to update it']);
         }
 
-
         $update =  $post->update($fields);
         if (!$update) {
             return response()->json([
@@ -66,7 +67,7 @@ class PostsController extends Controller
 
     public function show($id)
     {
-        $post = Posts::with('comments' , 'likes')->find($id);
+        $post = Posts::with('comments', 'likes')->find($id);
         if (!$post) {
             return response()->json(['message' => 'no post found'], 404);
         }
@@ -94,12 +95,11 @@ class PostsController extends Controller
     }
 
 
-    public function user_posts(Request $request){
+    public function user_posts(Request $request)
+    {
         $userId = $request->user()->id;
-        $posts = Posts::where('user_id' , $userId)->with('likes')->get();
+        $posts = Posts::where('user_id', $userId)->with('likes')->get();
 
         return $posts;
     }
-
-
 }
