@@ -20,9 +20,10 @@ import { AddCommentApi, LikeCommentApi, RemoveCommentApi, ReplyCommentApi } from
 
 export default function Posts() {
     /*---> States <---*/
-    const [addPost, setAddPost] = useState<AddPosteTypes>({ title: '', body: '' });
+    const [addPost, setAddPost] = useState<AddPosteTypes>({ title: '', body: '', image: null });
     const [commentPost, setCommentPost] = useState<string>('');
     const [replyComment, setReplyComment] = useState<string>('');
+    const [usePicture, setUsePicture] = useState<string | null>(null)
     const { userInfo } = useContext(shareInfo);
     const reduxDispatch = useDispatch();
     const readStates = useSelector((state: RootState) => state.posts);
@@ -30,7 +31,11 @@ export default function Posts() {
     /*---> Change state to show cardPost <---*/
     const ChangeState = (): void => {
         reduxDispatch(setCardsPost(!readStates?.cardsPost));
+        setAddPost({ title: '', body: '' });
+        reduxDispatch(setEditePost(null));
+        setUsePicture(null);
     };
+
     /*---> Change states <---*/
     const ShowActions = (index: number | null): void => {
         reduxDispatch(setActions(readStates?.actions === index ? null : index));
@@ -44,21 +49,26 @@ export default function Posts() {
     const ShowReplyComment = (index: number | null): void => {
         reduxDispatch(setShowReplay(readStates?.showReplay === index ? null : index));
     }
+
     /*---> Handel Values <---*/
-    const handleInputChange = useCallback((
-        (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
-            const { name, value } = e.target;
-            setAddPost((prevstate: AddPosteTypes) => ({ ...prevstate, [name]: value }));
+    const handleInputChange = useCallback(((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | any>): void => {
+        const { name, value } = e.target;
+        if (name === "image") {
+            setAddPost((prevstate: AddPosteTypes) => ({ ...prevstate, [name]: e.target.files ? e.target.files[0] : '' }));
+            setUsePicture(URL.createObjectURL(e.target.files[0]) ?? null);
+            return
         }
-    ), []);
+        setAddPost((prevstate: AddPosteTypes) => ({ ...prevstate, [name]: value }));
+    }), []);
     const handelChangeComment = useCallback((e: React.ChangeEvent<HTMLInputElement>): void => {
         setCommentPost(e.target.value)
     }, []);
     const handelChangeReplyComment = useCallback((e: React.ChangeEvent<HTMLInputElement>): void => {
         setReplyComment(e.target.value)
     }, []);
+
     /*---> Fetch All Posts <---*/
-    const getPosts = async () => {
+    const getPosts = async (): Promise<void> => {
         try {
             const response = await fetchPostsApi();
             reduxDispatch(setPosts(response || []));
@@ -69,13 +79,20 @@ export default function Posts() {
         }
     }
     /*<-- Take information newPost at redux and send to database -->*/
-    const CreatePost = async () => {
+    const CreatePost = async (): Promise<void> => {
         try {
-            const response = await createPostApi(addPost || {});
+            const newPost = new FormData();
+            newPost.append('title', addPost?.title ?? '');
+            newPost.append('body', addPost?.body ?? '');
+            if (addPost?.image) newPost.append('image', addPost?.image);
+
+            const response = await createPostApi(newPost || {});
             if (response?.message === 'post create succusfuly') { alert(response.message) }
             getPosts();
-            setAddPost({ title: '', body: '' });
+
+            setAddPost({ title: '', body: '', image: null });
             reduxDispatch(setCardsPost(false));
+            setUsePicture(null);
         } catch (error) {
             console.error("Problem Create Post:", error);
         }
@@ -89,7 +106,7 @@ export default function Posts() {
         }
     }
     /*<-- delete post -->*/
-    const deletePost = async (id: number | null) => {
+    const deletePost = async (id: number | null): Promise<void> => {
         try {
             const response = await deletePostApi(id ?? null);
             alert(response?.message);
@@ -108,7 +125,7 @@ export default function Posts() {
         }
     }
     /*<-- Take id post modify and newInformation and send to database -->*/
-    const UpdatePost = async () => {
+    const UpdatePost = async (): Promise<void> => {
         try {
             const response = await updatePostApi(readStates?.editePost ?? null, addPost);
             alert(response?.mesaage);
@@ -117,21 +134,23 @@ export default function Posts() {
             ));
             setAddPost({ title: '', body: '' });
             reduxDispatch(setCardsPost(false));
+            reduxDispatch(setEditePost(null));
         } catch (error) {
             console.error("Problem Update Post:", error);
         }
     }
     /*<-- Like post and send postId to database -->*/
-    const likePost = async (id: number | null) => {
+    const likePost = async (id: number | null): Promise<void> => {
         try {
-            await likeApi(id ?? null);
+            const response = await likeApi(id ?? null);
+            console.log("Like Problem : ", response.message);
             getPosts()
         } catch (error) {
             console.error("Error like post:", error);
         }
     }
     /*<-- Save post and send postId to database -->*/
-    const savePost = async (id: number | null) => {
+    const savePost = async (id: number | null): Promise<void> => {
         try {
             await saveApi(id ?? null);
             getPosts();
@@ -140,16 +159,17 @@ export default function Posts() {
         }
     }
     /*<-- Following people and send userId to database -->*/
-    const following = async (id: number | null) => {
+    const following = async (id: number | null): Promise<void> => {
         try {
-            await newFollowing(id ?? null);
+            const response = await newFollowing(id ?? null);
+            console.log(response?.message);
             getFollowing();
         } catch (error) {
             console.error("Error following:", error);
         }
     }
     /*<-- Get all following -->*/
-    const getFollowing = async () => {
+    const getFollowing = async (): Promise<void> => {
         try {
             const response = await FollowingApi();
             reduxDispatch(setFollowing(response ?? []));
@@ -158,7 +178,7 @@ export default function Posts() {
         }
     }
     /*<-- Add New Comment -->*/
-    const addComment = async (id: number | null) => {
+    const addComment = async (id: number | null): Promise<void> => {
         try {
             const response = await AddCommentApi(id ?? null, commentPost);
             console.log(response?.message);
@@ -169,7 +189,7 @@ export default function Posts() {
         }
     }
     /*<-- Remove Comment -->*/
-    const removeComment = async (id_post: number | null, id_comment: number | null) => {
+    const removeComment = async (id_post: number | null, id_comment: number | null): Promise<void> => {
         try {
             const response = await RemoveCommentApi(id_post ?? null, id_comment ?? null);
             console.log(response?.message);
@@ -179,7 +199,7 @@ export default function Posts() {
         }
     }
     /*<-- Like Comment -->*/
-    const LikeComment = async (id: number | null) => {
+    const LikeComment = async (id: number | null): Promise<void> => {
         try {
             const response = await LikeCommentApi(id ?? null);
             console.log(response?.message);
@@ -189,13 +209,13 @@ export default function Posts() {
         }
     }
     /*<-- Reply Comment -->*/
-    const ReplyComment = async (id: number | null) => {
+    const ReplyComment = async (id: number | null): Promise<void> => {
         try {
             const response = await ReplyCommentApi(id ?? null, replyComment ?? null);
             console.log(response?.message);
+            getPosts();
             setReplyComment("");
             reduxDispatch(setShowReplay(null));
-            getPosts();
         } catch (error) {
             console.error("Error Remove Comment in post:", error);
         }
@@ -206,6 +226,8 @@ export default function Posts() {
             [getPosts(), getFollowing()]
         ).catch((error) => console.error("Error fetching data:", error));
     }, []);
+
+    console.log(addPost)
 
     return <>
         <div className="w-full lg:w-[50%] h-full flex flex-col gap-3 lg:gap-4 relative">
@@ -263,23 +285,25 @@ export default function Posts() {
                                     </div>
                                 </div>
                                 {/* <!-- Picture --> */}
-                                <div className="w-full h-[50vh] lg:max-h-[500px] bg-center Background-Size" style={{ backgroundImage: "url(https://media.licdn.com/dms/image/v2/D4E22AQFkEbrAfiv3fw/feedshare-shrink_2048_1536/B4EZP9yHfeHkAo-/0/1735129602184?e=1738800000&v=beta&t=DDAsooUXL9K8CTDcQw4u1squ5CFtZ8riZTOAi7XFG-o)" }}></div>
+                                <div className={`w-full h-[50vh] bg-blue-200 lg:max-h-[500px] bg-center Background-Size ${item?.image ? "flex" : "hidden"}`}
+                                    style={{ backgroundImage: `url(http://127.0.0.1:8000/storage/${item?.image})` }}>
+                                </div>
                                 {/* <!-- Actions --> */}
                                 <ul className="w-full py-5 flex gap-8 px-5">
                                     <li className={`flex items-center gap-[5px] cursor-pointer ${verfication(item?.likes ?? [], [], userInfo, item?.user_id ?? null, [], [])}`}
                                         onClick={() => likePost(item?.id ?? null)}>
                                         <i className='bx bxs-heart text-[20px]'></i>
-                                        <h1>Like</h1>
+                                        <h1>{item?.likes?.length}</h1>
                                     </li>
                                     <li className={`flex items-center gap-[5px] cursor-pointer ${readStates?.showComments ? "text-blue-500" : ""}`}
                                         onClick={() => ShowComments(item?.id ?? null)}>
                                         <i className='bx bxs-comment text-[18px]'></i>
-                                        <h1>Comment</h1>
+                                        <h1>{item?.comments?.length}</h1>
                                     </li>
                                     <li className={`flex items-center gap-[5px] cursor-pointer ${verfication([], item?.saves ?? [], userInfo, item?.user_id ?? null, [], [])}`}
                                         onClick={() => savePost(item?.id ?? null)}>
                                         <i className='bx bxs-bookmarks text-[18px]'></i>
-                                        <h1>Save</h1>
+                                        <h1>{item?.saves?.length}</h1>
                                     </li>
                                     <li className="flex items-center gap-[5px] cursor-pointer">
                                         <i className='bx bx-share text-[18px]'></i>
@@ -319,7 +343,8 @@ export default function Posts() {
                                                         value={replyComment}
                                                         onChange={handelChangeReplyComment}
                                                         className="w-full pl-5 py-2 text-black placeholder:text-gray-500 focus:outline-none rounded-full border border-gray-500" />
-                                                    <button className="px-4 py-2 text-sm bg-blue-500 text-white rounded-lg" onClick={() => ReplyComment(comment?.id ?? null)}>
+                                                    <button className="px-4 py-2 text-sm bg-blue-500 text-white rounded-lg"
+                                                        onClick={() => ReplyComment(comment?.id ?? null)}>
                                                         Add
                                                     </button>
                                                 </div>
@@ -366,7 +391,7 @@ export default function Posts() {
                     )
                 )}
             </div>
-            <div className={`w-full absolute ${readStates?.cardsPost ? 'flex' : 'hidden'} flex-col gap-32 px-5 py-5 rounded-md bg-white shadow-lg`}>
+            <div className={`w-[35rem] fixed ${readStates?.cardsPost ? 'flex' : 'hidden'} flex-col gap-5 px-5 py-5 rounded-md bg-white shadow-lg`}>
                 <div className="w-full h-5/6 flex flex-col gap-5">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center gap-4">
@@ -390,10 +415,18 @@ export default function Posts() {
                         name="body"
                         onChange={handleInputChange}
                         value={addPost?.body} />
+                    <div className={`w-full h-[12rem] flex justify-end items-start p-4 text-white bg-center Background-Size ${usePicture ? 'flex' : 'hidden'}`} style={{ backgroundImage: `url(${usePicture ?? null})` }}>
+                        <i className='bx bx-x px-1 py-1 text-[20px] bg-blue-500 text-white rounded-md cursor-pointer'
+                            onClick={() => {
+                                setUsePicture(null)
+                                addPost.image = null
+                            }}
+                        ></i>
+                    </div>
                 </div>
-                <div className="w-full h-1/6 flex gap-2 items-center">
+                <div className="w-full flex gap-2 items-center">
                     <div className="relative overflow-hidden">
-                        <input type="file" name="Picture" onChange={handleInputChange} className="absolute opacity-0" />
+                        <input type="file" name="image" onChange={handleInputChange} className="absolute opacity-0" />
                         <button className="px-3 py-2 bg-green-500 text-white rounded-lg">Picture</button>
                     </div>
                     <button className="px-4 py-2 bg-blue-500 text-white rounded-lg" onClick={handlePostAction}>

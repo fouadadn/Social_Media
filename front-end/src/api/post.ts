@@ -1,4 +1,5 @@
 import { AddPosteTypes } from '@/types';
+import { title } from 'process';
 
 // Fetch User Posts
 export async function fetchUserPostsApi() {
@@ -35,16 +36,15 @@ export async function fetchPostsApi() {
 }
 
 // Create a New Post
-export async function createPostApi(newPost: AddPosteTypes) {
+export async function createPostApi(newPost: FormData | null) {
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts`, {
             method: "POST",
             headers: {
                 Accept: "application/json",
-                'content-type': 'application/json',
                 Authorization: `Bearer ${localStorage.getItem("Token") || ''}`
             },
-            body: JSON.stringify(newPost || {})
+            body: newPost ?? null
         });
         return await response.json();
     } catch (error) {

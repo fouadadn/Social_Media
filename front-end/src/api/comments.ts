@@ -8,9 +8,7 @@ export async function AddCommentApi(id: number | null, Comment: any) {
                 'content-type': 'application/json',
                 Authorization: `Bearer ${localStorage.getItem("Token") || ''}`
             },
-            body: JSON.stringify({
-                body: Comment
-            })
+            body: JSON.stringify({ body: Comment })
         });
         return await response.json();
     } catch (error) {
@@ -22,7 +20,7 @@ export async function AddCommentApi(id: number | null, Comment: any) {
 export async function RemoveCommentApi(id_post: number | null, id_comment: number | null) {
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/post/${id_post}/delete_comment/${id_comment}`, {
-            method: "POST",
+            method: "DELETE",
             headers: {
                 Accept: "application/json",
                 'content-type': 'application/json',
@@ -62,9 +60,7 @@ export async function ReplyCommentApi(id: number | null, replyComment: string | 
                 'content-type': 'application/json',
                 Authorization: `Bearer ${localStorage.getItem("Token") || ''}`
             },
-            body: JSON.stringify({
-                body: replyComment
-            })
+            body: JSON.stringify({ body: replyComment })
         });
         return await response.json();
     } catch (error) {

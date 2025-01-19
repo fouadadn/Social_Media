@@ -8,7 +8,7 @@ export interface AccountTypes {
     followers?: AccountTypes[]
     following?: AccountTypes[]
 }
-export type ApiResponse  = {
+export type ApiResponse = {
     data?: AccountTypes[]
 }
 export interface AddPosteTypes {
@@ -17,10 +17,14 @@ export interface AddPosteTypes {
     username?: string
     title?: string
     body?: string
-    picture?: null | File
+    image?: null | File
     likes?: AddPosteTypes[]
     saves?: AddPosteTypes[]
     comments?: CommentsTypes[]
+}
+
+export interface SavedPostsTypes extends AddPosteTypes {
+    data?: AddPosteTypes[]
 }
 
 export interface CommentsTypes {
