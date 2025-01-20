@@ -33,6 +33,8 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
 Route::put('/update_user', [AuthController::class, 'update_User']);
+Route::delete('/delete_user', [AuthController::class, 'delete_User']);
+Route::get('/user_info/{userId}', [AuthController::class, 'user_info']);
 
 //posts
 Route::apiResource('posts', PostsController::class)->middleware('auth:sanctum');

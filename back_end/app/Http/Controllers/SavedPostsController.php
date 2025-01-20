@@ -50,7 +50,7 @@ class SavedPostsController extends Controller implements HasMiddleware
 
         $posts = [];
         foreach($saved_posts as $save_post ){
-            $post = Posts::find($save_post->posts_id);
+            $post = Posts::with(['likes' , 'comments' => function ($query) {return $query->WithoutReplies();}, 'comments.replies' , 'comments.likes' , 'saves'])->find($save_post->posts_id);
             array_push($posts , $post);
         }
         

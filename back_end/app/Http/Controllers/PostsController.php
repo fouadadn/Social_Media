@@ -18,7 +18,7 @@ class PostsController extends Controller
         }
         return $posts;
     }
-    
+
     public function store(Request $request)
     {
         $formfields =  $request->validate([
@@ -71,7 +71,7 @@ class PostsController extends Controller
         if (!$post) {
             return response()->json(['message' => 'no post found'], 404);
         }
-        return response()->json($post);
+        return response()->json(['data' => $post]);
     }
 
     public function destroy(Request $request, $id)
@@ -97,9 +97,9 @@ class PostsController extends Controller
 
     public function user_posts(Request $request)
     {
-        $userId = $request->user()->id;
-        $posts = Posts::where('user_id', $userId)->with('likes')->get();
+        $userId = $request->user()->id;        
+        $posts = Posts::where('user_id', $userId)->with(['likes' , 'comments' => function ($query) {return $query->WithoutReplies();} , 'comments.replies' , 'comments.likes' , 'saves'])->get();
 
-        return $posts;
+        return response()->json(['data' => $posts]);
     }
 }

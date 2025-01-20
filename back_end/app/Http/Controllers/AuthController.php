@@ -8,8 +8,6 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Hash;
 
-use function Laravel\Prompts\password;
-
 class AuthController extends Controller implements HasMiddleware
 {
     public static function middleware()
@@ -21,12 +19,22 @@ class AuthController extends Controller implements HasMiddleware
 
     public function users()
     {
-        $users = User::with(['following','posts.likes', 'posts.comments' => function ($query) {return $query->WithoutReplies();} , 'posts.comments.replies'    , 'followers', 'saved_posts' ])->get();
-
+        $users = User::with(['following','posts.likes', 'posts.comments' => function ($query) {return $query->WithoutReplies();} , 'posts.comments.replies' ,'posts.comments.likes' , 'followers', 'saved_posts' ])->get();
         return  response()->json(["data" => $users]);
     }
 
     public function user_info(Request $request ,$userId){
+        $user = User::with(['following','posts.likes', 'posts.comments' => function ($query) {return $query->WithoutReplies();} , 'posts.comments.replies' ,'posts.comments.likes' , 'followers', 'saved_posts' ])->find($userId); 
+        if(!$user){
+            return response()->json(['message' => 'user not found'] , 404);
+        }
+        return response()->json(["data" => $user]);
+    }
+
+    public function delete_User(Request $request){
+        $user = $request->user();
+        $user->delete();
+        return response()->json(['message' => 'user deleted successfully']);
 
     }
 
