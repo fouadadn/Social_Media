@@ -67,7 +67,7 @@ export async function saveApi(id: number | null) {
 // Get Saved-Post
 export async function savedPostsApi() {
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/get_saved_posts`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/saved_post`, {
             method: 'GET',
             headers: {
                 Accept: "application/json",
