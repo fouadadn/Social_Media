@@ -35,6 +35,7 @@ Route::post('/logout', [AuthController::class, 'logout']);
 Route::put('/update_user', [AuthController::class, 'update_User']);
 Route::delete('/delete_user', [AuthController::class, 'delete_User']);
 Route::get('/user_info/{userId}', [AuthController::class, 'user_info']);
+Route::get('/search_user/{name}', [AuthController::class, 'search_user']);
 
 //posts
 Route::apiResource('posts', PostsController::class)->middleware('auth:sanctum');

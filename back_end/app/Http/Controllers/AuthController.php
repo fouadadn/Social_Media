@@ -17,6 +17,14 @@ class AuthController extends Controller implements HasMiddleware
         ];
     }
 
+    public function search_user(){
+        $users = User::where('name' , 'like' , '%' . request('name') . '%')->get();
+        if(count($users) === 0){
+            return response()->json(['message' => 'no users found']);
+        }
+        return response()->json(['data' => $users]);
+    }
+
     public function users()
     {
         $users = User::with(['following','posts.likes', 'posts.comments' => function ($query) {return $query->WithoutReplies();} , 'posts.comments.replies' ,'posts.comments.likes' , 'followers', 'saved_posts' ])->get();
