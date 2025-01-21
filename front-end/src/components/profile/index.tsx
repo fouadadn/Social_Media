@@ -16,7 +16,7 @@ export default function Profile() {
                     <div className="p-[25px] border-b border-b-black rounded-full text-[30px] mt-[-4rem] lg:mt-[-2.5rem] bg-white">
                         <FaRegUser />
                     </div>
-                    <Link href={`/profiles/${userInfo?.id}`} className="text-xl lg:text-base font-[500]">{userInfo?.name || 'loading..'}</Link>
+                    <Link href={`/profile/${userInfo?.id}`} className="text-xl lg:text-base font-[500]">{userInfo?.name || 'loading..'}</Link>
                 </div>
             </div>
             <div className="w-full h-full flex flex-col gap-2 text-[15px] lg:text-[13px] border-t border-b border-gray-200 px-4 py-[12px] bg-white">

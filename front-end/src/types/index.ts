@@ -7,6 +7,8 @@ export interface AccountTypes {
     posts?: AddPosteTypes[]
     followers?: AccountTypes[]
     following?: AccountTypes[]
+    profile? : null | File
+    backGround? : null | File
 }
 export type ApiResponse = {
     data?: AccountTypes[]
@@ -50,6 +52,9 @@ export interface reducerPosts extends reducersTypes {
     following: AccountTypes[]
     usersLiked: AccountTypes[]
     showComments: null | number
-    actionsComments: null | number,
+    actionsComments: null | number
     showReplay: null | number
+    commentPost : string
+    replyComment : string
+    message : string
 }
