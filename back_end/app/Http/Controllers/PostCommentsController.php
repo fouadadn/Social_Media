@@ -70,7 +70,6 @@ class PostCommentsController extends Controller implements HasMiddleware
 
         $request->validate([
             'body' => 'required',
-            "post_comments_id" => 'required|int'
         ]);
 
         $reply =  PostComments::create([

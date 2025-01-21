@@ -41,12 +41,17 @@ class PostsController extends Controller
     {
         $fields = $request->validate([
             'title' => 'string',
-            'body' => 'required|string',
+            'body' => 'string',
+            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:4096',
         ]);
 
         $post = Posts::find($id);
         if (!$post) {
             return response()->json(['message' => 'no post found'], 404);
+        }
+
+        if($request->hasFile('image')){
+            $fields['image'] = $request->file('image')->store('post_images','public');
         }
 
         $user_id =  $request->user()->id;

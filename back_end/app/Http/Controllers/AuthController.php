@@ -25,9 +25,9 @@ class AuthController extends Controller implements HasMiddleware
         return response()->json(['data' => $users]);
     }
 
-    public function users()
+    public function users(Request $request)
     {
-        $users = User::with(['following','posts.likes', 'posts.comments' => function ($query) {return $query->WithoutReplies();} , 'posts.comments.replies' ,'posts.comments.likes' , 'followers', 'saved_posts' ])->get();
+        $users = User::with(['following','posts.likes', 'posts.comments' => function ($query) {return $query->WithoutReplies();} , 'posts.comments.replies' ,'posts.comments.likes' , 'followers', 'saved_posts' ])->where('id' , '!=' , $request->user()->id )->get();
         return  response()->json(["data" => $users]);
     }
 
@@ -101,6 +101,7 @@ class AuthController extends Controller implements HasMiddleware
         $request->user()->tokens()->delete();
         return response()->json(['message' => 'you are logged out'], 200);
     }
+
 
     public function update_User(Request $request){
         $user = $request->user();
