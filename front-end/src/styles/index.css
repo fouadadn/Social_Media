@@ -16,3 +16,13 @@ body {
     background-size: cover;
     background-repeat: no-repeat;
 }
+
+.changeProfile div:last-child {
+    display: none;
+}
+
+.changeProfile:hover {
+    div:last-child {
+        display: flex;
+    }
+}

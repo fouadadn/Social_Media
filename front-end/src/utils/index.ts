@@ -6,7 +6,7 @@ export const verfication = (
     userInfo: AccountTypes,
     id: number | null,
     following: AccountTypes[],
-    likeComment : AddPosteTypes[]
+    likeComment: AddPosteTypes[]
 ): string | undefined => {
     if (!userInfo) {
         return
@@ -35,15 +35,7 @@ export const verfication = (
             return 'text-black';
         }
     }
-    if (id) {
-        const finduser = following?.find((item: AccountTypes) => item?.id === id);
-        if (finduser) {
-            return 'bg-blue-500 text-white';
-        } else {
-            return 'bg-transparent';
-        }
-    }
-    if (id) {
+    if (following?.length > 0) {
         const finduser = following?.find((item: AccountTypes) => item?.id === id);
         if (finduser) {
             return 'bg-blue-500 text-white';

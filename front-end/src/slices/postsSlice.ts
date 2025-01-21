@@ -13,6 +13,9 @@ const initialState: reducerPosts = {
     showComments: null,
     actionsComments: null,
     showReplay: null,
+    commentPost: '',
+    replyComment: '',
+    message: ''
 }
 
 export const PostsSlice = createSlice({
@@ -51,9 +54,23 @@ export const PostsSlice = createSlice({
         },
         setShowReplay(state, action: PayloadAction<null | number>) {
             state.showReplay = action.payload
+        },
+        setCommentPost(state, action: PayloadAction<string>) {
+            state.commentPost = action.payload
+        },
+        setReplyComment(state, action: PayloadAction<string>) {
+            state.replyComment = action.payload
+        },
+        setMessage(state, action: PayloadAction<string>) {
+            state.message = action.payload
         }
     }
 });
 
-export const { setCardsPost, setPosts, setLoading, setEditePost, setActions, setActive, setFollowing, setUsersLiked, setshowComments ,setActionsComments,setShowReplay} = PostsSlice.actions;
+export const {
+    setCardsPost, setPosts, setLoading, setEditePost,
+    setActions, setActive, setFollowing, setUsersLiked,
+    setshowComments, setActionsComments, setShowReplay,
+    setCommentPost, setReplyComment, setMessage
+} = PostsSlice.actions;
 export default PostsSlice.reducer;

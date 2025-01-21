@@ -5,6 +5,7 @@ import TextField from '@mui/material/TextField';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import Cookies from "js-cookie";
 
 export default function Header() {
     const [changeUrl, setChangeUrl] = useState<string>('');
@@ -36,7 +37,7 @@ export default function Header() {
     }, [pathname]);
 
     const logOut = () => {
-        localStorage.removeItem("Token")
+        Cookies.remove('Token');
         navigate.push("/sign-up");
     };
 
