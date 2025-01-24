@@ -158,7 +158,8 @@ export default function Posts({ ChangeDirect, width, Action }: { ChangeDirect?: 
     /*<-- Following people and send userId to database -->*/
     const following = async (id: number | null): Promise<void> => {
         try {
-            await newFollowing(id ?? null);
+            const haja = await newFollowing(id ?? null);
+            console.log(haja)
             getFollowing();
         } catch (error) {
             console.error("Error following:", error);
@@ -168,7 +169,7 @@ export default function Posts({ ChangeDirect, width, Action }: { ChangeDirect?: 
     const getFollowing = async (): Promise<void> => {
         try {
             const response = await FollowingApi();
-            reduxDispatch(setFollowing(response ?? []));
+            reduxDispatch(setFollowing(response?.data ?? []));
         } catch (error) {
             console.error("Error get following:", error);
         }
@@ -360,13 +361,17 @@ export default function Posts({ ChangeDirect, width, Action }: { ChangeDirect?: 
                                             <div className={`w-full flex flex-col gap-3 mt-2 ml-12 ${comment?.replies.length > 0 ? "flex" : "hidden"}`}>
                                                 {comment?.replies?.map((reply: CommentsTypes, index: number) => (
                                                     <div key={index} className="flex items-center gap-3">
-                                                        <div className="p-[10px] border border-black rounded-full text-[17px]">
-                                                            <FaRegUser />
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="p-[10px] border border-black rounded-full text-[17px]">
+                                                                <FaRegUser />
+                                                            </div>
+                                                            <ul className="flex flex-col">
+                                                                <li>{reply?.username}</li>
+                                                                <li>{reply?.body}</li>
+                                                            </ul>
                                                         </div>
-                                                        <ul className="flex flex-col">
-                                                            <li>{reply?.username}</li>
-                                                            <li>{reply?.body}</li>
-                                                        </ul>
+                                                        <MdRemoveCircleOutline className={`text-red-500 text-[21px] cursor-pointer`}
+                                                            onClick={() => removeComment(item?.id ?? null, reply?.id ?? null)} />
                                                     </div>
                                                 ))}
                                             </div>

@@ -72,6 +72,6 @@ class FollowersController extends Controller implements HasMiddleware
             array_push($users, $user);
         }
 
-        return $users;
+        return response()->json(['data' => $users]) ;
     }
 }

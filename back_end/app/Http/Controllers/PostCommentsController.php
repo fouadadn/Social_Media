@@ -20,7 +20,7 @@ class PostCommentsController extends Controller implements HasMiddleware
     {
         $post = Posts::find($postId);
 
-        if(!$post) return response()->json(["message" => "post not found"] , 404);
+        if (!$post) return response()->json(["message" => "post not found"], 404);
         $request->validate([
             'body' => 'required',
         ]);
@@ -42,9 +42,12 @@ class PostCommentsController extends Controller implements HasMiddleware
 
     public function delete_comment(Request $request, $postId, $commentId)
     {
+        $post = Posts::find($postId);
+        if (!$post) return response()->json(["message" => "post not found"], 404);
+
         $comment = PostComments::where('user_id', $request->user()->id)
-        ->where('posts_id' , $postId)
-        ->where("id" , $commentId);
+            ->where('posts_id', $postId)
+            ->where("id", $commentId);
 
         if (!$comment->first()) {
             return response()->json(["message" => 'comment not found'], 404);
@@ -61,11 +64,12 @@ class PostCommentsController extends Controller implements HasMiddleware
         ]);
     }
 
-    public function reply(Request $request , $commentId){
+    public function reply(Request $request, $commentId)
+    {
         $comment = PostComments::find($commentId);
 
-        if(!$comment){
-            return response()->json(["message" => "comment not found"] , 404);
+        if (!$comment) {
+            return response()->json(["message" => "comment not found"], 404);
         }
 
         $request->validate([

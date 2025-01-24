@@ -19,6 +19,7 @@ class PostsController extends Controller
         return $posts;
     }
 
+
     public function store(Request $request)
     {
         $formfields =  $request->validate([
